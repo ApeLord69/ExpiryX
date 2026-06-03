@@ -1,0 +1,113 @@
+<resources>
+    <string name="app_name" translatable="false">ExpiryX</string>
+    <string name="welcome" translatable="false">Welcome!</string>
+    <string name="email" translatable="false">Email</string>
+    <string name="password" translatable="false">Password</string>
+    <string name="forgot_password" translatable="false">Forgot password?</string>
+    <string name="login" translatable="false">Log In</string>
+    <string name="continue_as_guest" translatable="false">Continue as guest</string>
+    <string name="login_with_google" translatable="false">Login with Google</string>
+    <string name="sign_up" translatable="false">Sign Up</string>
+    
+    <!-- Barcode and Timestamp Labels -->
+    <string name="barcode_label">Barcode:</string>
+    <string name="barcode_with_value">Barcode: %1$s</string>
+    <string name="added_label">Added:</string>
+    <string name="modified_label">Modified:</string>
+    <string name="no_barcode">No barcode available</string>
+    <string name="never_modified">Never modified</string>
+
+    <!-- Empty State Titles and Subtitles -->
+    <string name="empty_state_title_no_products">No Products Here Yet!</string>
+    <string name="empty_state_subtitle_no_products">Tap the + button to add your first product.</string>
+    <string name="empty_state_title_no_favorites">No Favorites Found</string>
+    <string name="empty_state_subtitle_no_favorites">Mark some products as favorite to see them here.</string>
+    <string name="empty_state_title_no_results">No Results Found</string>
+    <string name="empty_state_subtitle_no_results">Try adjusting your search or filter criteria.</string>
+
+    <string name="history_expired_count">%1$d Expired</string>
+    <string name="history_consumed_count">%1$d Consumed</string>
+    <string name="history_deleted_count">%1$d Deleted</string>
+
+    <string name="expiry_label">Expiry: %1$s</string>
+    <string name="expires_on_label">Expires on: %1$s</string>
+    <string name="quantity_label">Quantity: %1$d</string>
+    <string name="weight_label">Weight: %1$d %2$s</string>
+    <string name="favourite_label">Favourite: %1$s</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+    <string name="placeholder_product_name">Product Name</string>
+    <string name="placeholder_action">Action</string>
+    <string name="placeholder_date">01/01/2000 00:00</string>
+    <string name="history_product_image_desc">Product image</string>
+
+    <string name="history_detail_image_desc">History product image</string>
+    <string name="no_brand">No brand</string>
+    <string name="expiry_dash">Expiry: -</string>
+    <string name="quantity_one">Quantity: 1</string>
+    <string name="weight_dash">Weight: -</string>
+    <string name="favourite_false">Favourite: false</string>
+    <string name="barcode_na">Barcode: N/A</string>
+    <string name="added_na">Added: N/A</string>
+    <string name="modified_na">Modified: N/A</string>
+    <string name="restore">Restore</string>
+    <string name="permanently_delete">Permanently Delete</string>
+    <string name="version_format">v%1$s</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_history">History</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_home_desc">Home</string>
+    <string name="nav_history_desc">History</string>
+    <string name="nav_stats_desc">Statistics</string>
+    <string name="nav_settings_desc">Settings</string>
+
+    <!-- Stats page -->
+    <string name="stats_title">Statistics</string>
+    <string name="stats_range_7d">7 days</string>
+    <string name="stats_range_30d">30 days</string>
+    <string name="stats_range_90d">90 days</string>
+    <string name="stats_range_1y">1 year</string>
+    <string name="stats_range_all">All time</string>
+    <string name="stats_empty_title">No data yet</string>
+    <string name="stats_empty_subtitle">Add products and track their lifecycle to see statistics here.</string>
+    <string name="stats_section_overview">Overview</string>
+    <string name="stats_section_secondary">Details</string>
+    <string name="stats_section_lifecycle">Lifecycle breakdown</string>
+    <string name="stats_section_activity">Weekly activity</string>
+    <string name="stats_section_expiry">Expiry urgency</string>
+    <string name="stats_section_brands">Top brands</string>
+    <string name="stats_section_insights">Inventory insights</string>
+    <string name="stats_section_account">Account &amp; sync</string>
+    <string name="stats_kpi_active">Active items</string>
+    <string name="stats_kpi_consumed">Consumed</string>
+    <string name="stats_kpi_expired">Expired</string>
+    <string name="stats_kpi_waste_rate">Waste rate</string>
+    <string name="stats_kpi_qty_sub">%1$d total qty</string>
+    <string name="stats_secondary_summary">Deleted: %1$d\nAdded in period: %2$d\nAvg days to use: %3$s\nConsumed before expiry: %4$s</string>
+    <string name="stats_not_available">N/A</string>
+    <string name="stats_action_used">Used</string>
+    <string name="stats_action_expired">Expired</string>
+    <string name="stats_action_deleted">Deleted</string>
+    <string name="stats_legend_added">Added</string>
+    <string name="stats_lifecycle_center">%1$d\ntotal</string>
+    <string name="stats_no_activity_period">No activity in this period</string>
+    <string name="stats_no_active_products">No active products</string>
+    <string name="stats_top_consumed">Most consumed</string>
+    <string name="stats_top_wasted">Most wasted</string>
+    <string name="stats_no_brand_data">No brand data for this period</string>
+    <string name="stats_brand_count">%1$d</string>
+    <string name="stats_insights_summary">Favorites: %1$d\nBarcode scan rate: %2$s\nNo expiry date: %3$d\nTotal weight: %4$d g\nTotal volume: %5$d ml</string>
+    <string name="stats_account_user">User</string>
+    <string name="stats_sync_active">Sync active</string>
+    <string name="stats_sync_disabled">Sync disabled</string>
+    <string name="stats_account_logged_in">%1$s\n%2$s\n%3$d active · %4$d history events</string>
+    <string name="stats_guest_title">Not signed in</string>
+    <string name="stats_guest_subtitle">Sign in to sync your data across devices. Tap to sign in.</string>
+    <string name="stats_account_image_desc">Account profile image</string>
+    <string name="stats_chart_lifecycle_desc">Lifecycle pie chart showing used, expired, and deleted items</string>
+    <string name="stats_chart_activity_desc">Weekly activity bar chart</string>
+</resources>

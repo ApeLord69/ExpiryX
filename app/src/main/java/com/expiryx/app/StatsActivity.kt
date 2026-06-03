@@ -1,0 +1,378 @@
+package com.expiryx.app
+
+import android.content.Intent
+import android.graphics.Color
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.expiryx.app.databinding.ActivityStatsBinding
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.PercentFormatter
+import java.util.Locale
+
+class StatsActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityStatsBinding
+
+    private val viewModel: StatsViewModel by viewModels {
+        StatsViewModelFactory((application as ProductApplication).repository)
+    }
+
+    private val brandsConsumedAdapter = StatBrandAdapter()
+    private val brandsWastedAdapter = StatBrandAdapter()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityStatsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setupRecyclerViews()
+        setupTimeRangeChips()
+        setupBottomNav()
+        setupAccountCard()
+        setupCharts()
+        observeStats()
+    }
+
+    private fun setupRecyclerViews() {
+        binding.recyclerBrandsConsumed.layoutManager = LinearLayoutManager(this)
+        binding.recyclerBrandsConsumed.adapter = brandsConsumedAdapter
+        binding.recyclerBrandsWasted.layoutManager = LinearLayoutManager(this)
+        binding.recyclerBrandsWasted.adapter = brandsWastedAdapter
+    }
+
+    private fun setupTimeRangeChips() {
+        val chipMap = mapOf(
+            binding.chip7d to TimeRange.DAYS_7,
+            binding.chip30d to TimeRange.DAYS_30,
+            binding.chip90d to TimeRange.DAYS_90,
+            binding.chip1y to TimeRange.YEAR,
+            binding.chipAll to TimeRange.ALL,
+        )
+        chipMap.forEach { (chip, range) ->
+            chip.setOnClickListener {
+                viewModel.setTimeRange(range)
+            }
+        }
+    }
+
+    private fun setupBottomNav() {
+        binding.navHomeWrapper.setOnClickListener { navigateTo(MainActivity::class.java) }
+        binding.navHistoryWrapper.setOnClickListener { navigateTo(HistoryActivity::class.java) }
+        binding.navStatsWrapper.setOnClickListener { /* current screen */ }
+        binding.navSettingsWrapper.setOnClickListener { navigateTo(SettingsActivity::class.java) }
+        highlightCurrentTab()
+    }
+
+    private fun navigateTo(target: Class<*>) {
+        startActivity(Intent(this, target).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+        overridePendingTransition(0, 0)
+        finish()
+    }
+
+    private fun highlightCurrentTab() {
+        binding.navHome.setImageResource(R.drawable.ic_home_unfilled)
+        binding.navHistory.setImageResource(R.drawable.ic_clock_unfilled)
+        binding.navStats.setImageResource(R.drawable.ic_stats_filled)
+        binding.navSettings.setImageResource(R.drawable.ic_settings_unfilled)
+        binding.navStats.setColorFilter(ContextCompat.getColor(this, R.color.teal_700))
+        binding.navHome.clearColorFilter()
+        binding.navHistory.clearColorFilter()
+        binding.navSettings.clearColorFilter()
+    }
+
+    private fun setupAccountCard() {
+        binding.accountStatsCard.setOnClickListener {
+            val user = AccountManager.getCurrentUser()
+            if (user != null) {
+                startActivity(Intent(this, AccountActivity::class.java))
+            } else {
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.putExtra("force_login", true)
+                startActivity(intent)
+            }
+        }
+    }
+
+    private fun setupCharts() {
+        stylePieChart(binding.chartLifecycle)
+        styleBarChart(binding.chartActivity)
+    }
+
+    private fun stylePieChart(chart: PieChart) {
+        chart.apply {
+            description.isEnabled = false
+            setUsePercentValues(true)
+            setDrawEntryLabels(true)
+            setEntryLabelColor(resolveChartTextColor())
+            setEntryLabelTextSize(11f)
+            setHoleColor(Color.TRANSPARENT)
+            setTransparentCircleAlpha(0)
+            holeRadius = 45f
+            transparentCircleRadius = 50f
+            setDrawCenterText(true)
+            setCenterTextSize(14f)
+            setCenterTextColor(resolveChartTextColor())
+            legend.orientation = Legend.LegendOrientation.HORIZONTAL
+            legend.isWordWrapEnabled = true
+            legend.textColor = resolveChartTextColor()
+            legend.textSize = 11f
+            setNoDataText(getString(R.string.stats_no_activity_period))
+            setNoDataTextColor(resolveChartTextColor())
+        }
+    }
+
+    private fun styleBarChart(chart: BarChart) {
+        chart.apply {
+            description.isEnabled = false
+            setDrawGridBackground(false)
+            setDrawBarShadow(false)
+            setDrawValueAboveBar(false)
+            axisRight.isEnabled = false
+            axisLeft.textColor = resolveChartTextColor()
+            axisLeft.axisMinimum = 0f
+            axisLeft.granularity = 1f
+            xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.granularity = 1f
+            xAxis.textColor = resolveChartTextColor()
+            xAxis.setDrawGridLines(false)
+            legend.textColor = resolveChartTextColor()
+            legend.textSize = 11f
+            setNoDataText(getString(R.string.stats_no_activity_period))
+            setNoDataTextColor(resolveChartTextColor())
+        }
+    }
+
+    private fun resolveChartTextColor(): Int {
+        return ContextCompat.getColor(this, if (ThemeManager.isDarkMode(this)) R.color.white else R.color.black)
+    }
+
+    private fun observeStats() {
+        viewModel.statsState.observe(this) { state ->
+            updateTimeRangeSelection(state.timeRange)
+            binding.emptyStateLayout.visibility = if (state.isEmpty) View.VISIBLE else View.GONE
+            binding.statsContentLayout.visibility = if (state.isEmpty) View.GONE else View.VISIBLE
+            if (state.isEmpty) return@observe
+
+            bindKpiCards(state)
+            bindSecondaryStats(state)
+            bindLifecycleChart(state)
+            bindActivityChart(state)
+            bindExpiryBuckets(state)
+            bindBrandLists(state)
+            bindInsights(state)
+            bindAccountCard(state)
+        }
+    }
+
+    private fun updateTimeRangeSelection(range: TimeRange) {
+        val chipId = when (range) {
+            TimeRange.DAYS_7 -> binding.chip7d.id
+            TimeRange.DAYS_30 -> binding.chip30d.id
+            TimeRange.DAYS_90 -> binding.chip90d.id
+            TimeRange.YEAR -> binding.chip1y.id
+            TimeRange.ALL -> binding.chipAll.id
+        }
+        binding.chipGroupTimeRange.check(chipId)
+    }
+
+    private fun bindKpiCards(state: StatsUiState) {
+        bindKpi(binding.kpiActive, getString(R.string.stats_kpi_active), state.activeItems.toString(),
+            getString(R.string.stats_kpi_qty_sub, state.activeQuantity))
+        bindKpi(binding.kpiConsumed, getString(R.string.stats_kpi_consumed), state.consumedCount.toString())
+        bindKpi(binding.kpiExpired, getString(R.string.stats_kpi_expired), state.expiredCount.toString())
+        bindKpi(binding.kpiWaste, getString(R.string.stats_kpi_waste_rate),
+            String.format(Locale.getDefault(), "%.0f%%", state.wasteRate))
+    }
+
+    private fun bindKpi(
+        kpiBinding: com.expiryx.app.databinding.ItemStatKpiCardBinding,
+        label: String,
+        value: String,
+        sub: String? = null,
+    ) {
+        kpiBinding.kpiLabel.text = label
+        kpiBinding.kpiValue.text = value
+        if (sub != null) {
+            kpiBinding.kpiSub.text = sub
+            kpiBinding.kpiSub.visibility = View.VISIBLE
+        } else {
+            kpiBinding.kpiSub.visibility = View.GONE
+        }
+    }
+
+    private fun bindSecondaryStats(state: StatsUiState) {
+        val avgDays = state.avgDaysToUse?.let {
+            String.format(Locale.getDefault(), "%.1f", it)
+        } ?: getString(R.string.stats_not_available)
+
+        binding.txtSecondaryStats.text = getString(
+            R.string.stats_secondary_summary,
+            state.deletedCount,
+            state.itemsAddedInRange,
+            avgDays,
+            String.format(Locale.getDefault(), "%.0f%%", state.consumedBeforeExpiryPercent),
+        )
+    }
+
+    private fun bindLifecycleChart(state: StatsUiState) {
+        val total = state.lifecycleUsed + state.lifecycleExpired + state.lifecycleDeleted
+        val hasData = total > 0
+        binding.chartLifecycle.visibility = if (hasData) View.VISIBLE else View.GONE
+        binding.txtLifecycleEmpty.visibility = if (hasData) View.GONE else View.VISIBLE
+
+        if (!hasData) return
+
+        val entries = listOf(
+            PieEntry(state.lifecycleUsed.toFloat(), getString(R.string.stats_action_used)),
+            PieEntry(state.lifecycleExpired.toFloat(), getString(R.string.stats_action_expired)),
+            PieEntry(state.lifecycleDeleted.toFloat(), getString(R.string.stats_action_deleted)),
+        ).filter { it.value > 0f }
+
+        val dataSet = PieDataSet(entries, "").apply {
+            colors = listOf(
+                ContextCompat.getColor(this@StatsActivity, R.color.green),
+                ContextCompat.getColor(this@StatsActivity, R.color.red),
+                ContextCompat.getColor(this@StatsActivity, R.color.gray),
+            )
+            sliceSpace = 2f
+            valueTextSize = 11f
+            valueTextColor = Color.WHITE
+            valueFormatter = PercentFormatter(binding.chartLifecycle)
+        }
+
+        binding.chartLifecycle.centerText = getString(R.string.stats_lifecycle_center, total)
+        binding.chartLifecycle.data = PieData(dataSet)
+        binding.chartLifecycle.invalidate()
+    }
+
+    private fun bindActivityChart(state: StatsUiState) {
+        val weeks = state.weeklyActivity
+        val hasData = weeks.any { it.added + it.used + it.expired + it.deleted > 0 }
+        binding.chartActivity.visibility = if (hasData) View.VISIBLE else View.GONE
+        binding.txtActivityEmpty.visibility = if (hasData) View.GONE else View.VISIBLE
+        if (!hasData) return
+
+        val labels = weeks.map { it.weekLabel }.toTypedArray()
+        val groupSpace = 0.08f
+        val barSpace = 0.02f
+        val barWidth = 0.18f
+
+        val addedEntries = weeks.mapIndexed { i, w -> BarEntry(i.toFloat(), w.added.toFloat()) }
+        val usedEntries = weeks.mapIndexed { i, w -> BarEntry(i.toFloat(), w.used.toFloat()) }
+        val expiredEntries = weeks.mapIndexed { i, w -> BarEntry(i.toFloat(), w.expired.toFloat()) }
+        val deletedEntries = weeks.mapIndexed { i, w -> BarEntry(i.toFloat(), w.deleted.toFloat()) }
+
+        val addedSet = barDataSet(addedEntries, getString(R.string.stats_legend_added), R.color.blue)
+        val usedSet = barDataSet(usedEntries, getString(R.string.stats_action_used), R.color.green)
+        val expiredSet = barDataSet(expiredEntries, getString(R.string.stats_action_expired), R.color.red)
+        val deletedSet = barDataSet(deletedEntries, getString(R.string.stats_action_deleted), R.color.gray)
+
+        val data = BarData(addedSet, usedSet, expiredSet, deletedSet).apply {
+            this.barWidth = barWidth
+        }
+
+        binding.chartActivity.apply {
+            xAxis.valueFormatter = IndexAxisValueFormatter(labels)
+            xAxis.labelCount = labels.size
+            this.data = data
+            xAxis.axisMinimum = -0.5f
+            xAxis.axisMaximum = labels.size - 0.5f
+            groupBars(-0.5f, groupSpace, barSpace)
+            invalidate()
+        }
+    }
+
+    private fun barDataSet(entries: List<BarEntry>, label: String, colorRes: Int): BarDataSet {
+        return BarDataSet(entries, label).apply {
+            color = ContextCompat.getColor(this@StatsActivity, colorRes)
+            setDrawValues(false)
+        }
+    }
+
+    private fun bindExpiryBuckets(state: StatsUiState) {
+        binding.expiryBucketsContainer.removeAllViews()
+        val buckets = state.expiryBuckets
+        binding.txtExpiryEmpty.visibility = if (buckets.isEmpty()) View.VISIBLE else View.GONE
+        binding.expiryBucketsContainer.visibility = if (buckets.isEmpty()) View.GONE else View.VISIBLE
+        if (buckets.isEmpty()) return
+
+        val maxCount = buckets.maxOf { it.count }.coerceAtLeast(1)
+        val inflater = LayoutInflater.from(this)
+        buckets.forEach { bucket ->
+            val row = inflater.inflate(R.layout.view_expiry_bucket_bar, binding.expiryBucketsContainer, false)
+            row.findViewById<TextView>(R.id.txtBucketLabel).text = bucket.label
+            row.findViewById<TextView>(R.id.txtBucketCount).text = bucket.count.toString()
+            val progress = row.findViewById<ProgressBar>(R.id.bucketProgress)
+            progress.max = maxCount
+            progress.progress = bucket.count
+            progress.progressTintList = ContextCompat.getColorStateList(this, bucket.colorRes)
+            binding.expiryBucketsContainer.addView(row)
+        }
+    }
+
+    private fun bindBrandLists(state: StatsUiState) {
+        brandsConsumedAdapter.submitList(state.topBrandsConsumed)
+        brandsWastedAdapter.submitList(state.topBrandsWasted)
+        binding.txtBrandsConsumedEmpty.visibility =
+            if (state.topBrandsConsumed.isEmpty()) View.VISIBLE else View.GONE
+        binding.txtBrandsWastedEmpty.visibility =
+            if (state.topBrandsWasted.isEmpty()) View.VISIBLE else View.GONE
+    }
+
+    private fun bindInsights(state: StatsUiState) {
+        binding.txtInsights.text = getString(
+            R.string.stats_insights_summary,
+            state.favoritesCount,
+            String.format(Locale.getDefault(), "%.0f%%", state.barcodeScanRate),
+            state.noExpiryCount,
+            state.totalWeightG,
+            state.totalVolumeMl,
+        )
+    }
+
+    private fun bindAccountCard(state: StatsUiState) {
+        val user = AccountManager.getCurrentUser()
+        if (user != null) {
+            binding.txtAccountStatsName.text = user.displayName ?: getString(R.string.stats_account_user)
+            val syncStatus = if (Prefs.isSyncEnabled(this)) {
+                getString(R.string.stats_sync_active)
+            } else {
+                getString(R.string.stats_sync_disabled)
+            }
+            binding.txtAccountStatsDetail.text = getString(
+                R.string.stats_account_logged_in,
+                user.email ?: "",
+                syncStatus,
+                state.activeItems,
+                state.consumedCount + state.expiredCount + state.deletedCount,
+            )
+            if (user.photoUrl != null) {
+                Glide.with(this).load(user.photoUrl).circleCrop().into(binding.imgAccountStats)
+            } else {
+                binding.imgAccountStats.setImageResource(R.drawable.ic_google_logo)
+            }
+        } else {
+            binding.txtAccountStatsName.text = getString(R.string.stats_guest_title)
+            binding.txtAccountStatsDetail.text = getString(R.string.stats_guest_subtitle)
+            binding.imgAccountStats.setImageResource(R.drawable.ic_google_logo)
+        }
+    }
+}

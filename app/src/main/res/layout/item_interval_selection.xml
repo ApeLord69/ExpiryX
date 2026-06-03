@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="4dp"
+    android:paddingHorizontal="16dp"
+    android:background="?attr/selectableItemBackground">
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/checkInterval"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        app:useMaterialThemeColors="true"/>
+
+    <TextView
+        android:id="@+id/txtIntervalName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/checkInterval"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="12dp"
+        android:textSize="15sp"
+        android:textColor="?attr/colorOnSurface"
+        android:text="1 day before"/>
+
+    <ImageButton
+        android:id="@+id/btnDeleteInterval"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_delete"
+        android:contentDescription="Delete interval"
+        android:padding="6dp"
+        android:scaleType="centerInside"
+        app:tint="@color/red" />
+
+</RelativeLayout>

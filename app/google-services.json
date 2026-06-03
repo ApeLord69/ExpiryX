@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "569728616658",
+    "project_id": "expiryx-app",
+    "storage_bucket": "expiryx-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569728616658:android:6fce86a0d7e6f533d9850b",
+        "android_client_info": {
+          "package_name": "com.expiryx.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "569728616658-d1iafsr0rvn7sbgpsm4820nhlsc60t65.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.expiryx.app",
+            "certificate_hash": "5b2b923a732fc5e7bdce97b3a9732bffb4ca2ab9"
+          }
+        },
+        {
+          "client_id": "569728616658-rqoprbgdekvmjgik2lhu4097k2vjobrk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4p0k3zQIJAcHx_OjURKRg6jEqWy7A0pA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "569728616658-rqoprbgdekvmjgik2lhu4097k2vjobrk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
