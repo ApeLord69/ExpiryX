@@ -8,7 +8,8 @@
     <string name="continue_as_guest" translatable="false">Continue as guest</string>
     <string name="login_with_google" translatable="false">Login with Google</string>
     <string name="sign_up" translatable="false">Sign Up</string>
-    
+    <string name="default_web_client_id" translatable="false">569728616658-rqoprbgdekvmjgik2lhu4097k2vjobrk.apps.googleusercontent.com</string>
+
     <!-- Barcode and Timestamp Labels -->
     <string name="barcode_label">Barcode:</string>
     <string name="barcode_with_value">Barcode: %1$s</string>
@@ -110,4 +111,87 @@
     <string name="stats_account_image_desc">Account profile image</string>
     <string name="stats_chart_lifecycle_desc">Lifecycle pie chart showing used, expired, and deleted items</string>
     <string name="stats_chart_activity_desc">Weekly activity bar chart</string>
+
+    <!-- Data entry -->
+    <string name="add_a_product">Add a Product</string>
+    <string name="scan_barcode">Scan Barcode</string>
+    <string name="scan_barcode_subtitle">Fastest way to add items — point your camera at the barcode</string>
+    <string name="upload_from_device">Upload from Device</string>
+    <string name="manual_entry">Manual Entry</string>
+    <string name="cancel">Cancel</string>
+    <string name="product_name_hint">Product Name</string>
+    <string name="brand_hint">Brand</string>
+    <string name="quantity_hint">Quantity</string>
+    <string name="quantity_hint_default">Quantity</string>
+    <string name="quantity_default_helper">1</string>
+    <string name="toggle_date_input_mode">Toggle date input mode</string>
+    <string name="open_calendar_picker">Pick date from calendar</string>
+    <string name="expiry_date_text_hint">dd/MM/yyyy</string>
+    <string name="sort_by">Sort By</string>
+    <string name="favorites_filter">Favorites</string>
+    <string name="search_products">Search</string>
+    <string name="search_products_hint">Search products…</string>
+    <string name="empty_state_icon">Empty state</string>
+    <string name="add_product">Add Product</string>
+    <string name="edit">Edit</string>
+    <string name="mark_as_used">Used</string>
+    <string name="delete">Delete</string>
+    <string name="days_remaining_format">%1$s</string>
+    <string name="expires_on_detail">Expires: %1$s</string>
+    <string name="weight_hint">Weight</string>
+    <string name="unit_hint">Unit</string>
+    <string name="mark_as_favorite">Mark as Favorite</string>
+    <string name="save_product">Save Product</string>
+    <string name="redo_product">Redo</string>
+    <string name="preferences">PREFERENCES</string>
+    <string name="accent_color">Accent Color</string>
+    <string name="accent_color_subtitle">Choose your app accent theme</string>
+    <string name="accent_color_current">Current: %1$s</string>
+    <string name="accent_color_picker_subtitle">Pick a colour preset for buttons, icons, and highlights</string>
+    <string name="expiry_date_label">Expiration Date</string>
+    <string name="expiry_date_wheel_hint">Scroll the wheels to set day, month, and year</string>
+    <string name="expiry_date_calendar_hint">Tap the button below to open the calendar picker</string>
+    <string name="expiry_date_invalid">Enter a valid date as dd/MM/yyyy</string>
+    <string name="expiry_date_not_set">Select an expiration date</string>
+    <string name="day_label">Day</string>
+    <string name="month_label">Month</string>
+    <string name="year_label">Year</string>
+    <string name="product_image">Product image</string>
+    <string name="product_image_preview">Product image preview</string>
+    <string name="favorite_button">Favorite button</string>
+    <string name="open_in_browser">Open in browser</string>
+    <string name="empty_fridge_title">Your fridge is empty!</string>
+    <string name="empty_fridge_subtitle">Tap the + button to add items.</string>
+    <string name="sort_expiry_soon">Expiry Soonest</string>
+    <string name="sort_expiry_late">Expiry Latest</string>
+    <string name="sort_name_az">Name A–Z</string>
+    <string name="sort_name_za">Name Z–A</string>
+    <string name="sort_qty_low">Quantity Low→High</string>
+    <string name="sort_qty_high">Quantity High→Low</string>
+    <string name="sort_weight_low">Weight Low→High</string>
+    <string name="sort_weight_high">Weight High→Low</string>
+    <string name="sort_favorites">Favorites First</string>
+    <string name="sort_added_old">Added: Oldest First</string>
+    <string name="sort_added_new">Added: Newest First</string>
+    <string name="dialog_delete_title">Delete Product</string>
+    <string name="dialog_delete_message">Are you sure you want to delete %1$s?</string>
+    <string name="toast_product_used">%1$s moved to history (Used)</string>
+    <string name="login_welcome_title">Welcome to ExpiryX</string>
+    <string name="login_welcome_subtitle">Track your food expiry dates with ease and never waste food again.</string>
+    <string name="login_sign_in_google">Sign in with Google</string>
+    <string name="login_skip">Skip for now</string>
+    <string name="error_google_sign_in_failed">Google sign in failed: %1$s</string>
+    <string name="error_firebase_unavailable">Firebase Authentication is unavailable.</string>
+    <string name="error_auth_failed">Authentication Failed: %1$s</string>
+    <string name="history_permanently_delete_title">Permanently Delete</string>
+    <string name="history_permanently_delete_msg">Are you sure you want to permanently delete %1$s? This cannot be undone.</string>
+    <string name="history_action_unuse">Un-use</string>
+    <string name="history_action_restore_expiry">Change Expiry &amp; Restore</string>
+    <string name="history_toast_restored">Expiry updated &amp; restored</string>
+    <string name="expiry_none">No date</string>
+    <string name="expiry_expired">Expired</string>
+    <string name="expiry_today">Today</string>
+    <string name="expiry_tomorrow">Tomorrow</string>
+    <string name="expiry_days_left">%1$d days left</string>
+    <string name="error_expiry_date_required">Expiry date is required</string>
 </resources>

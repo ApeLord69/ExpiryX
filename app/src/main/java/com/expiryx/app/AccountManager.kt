@@ -64,7 +64,8 @@ object AccountManager {
     fun signOut(context: Context, onComplete: () -> Unit = {}) {
         stopSync()
         auth?.signOut()
-        
+        setWelcomeScreenPassed(context, false)
+
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(context.getString(R.string.default_web_client_id))
             .requestEmail()

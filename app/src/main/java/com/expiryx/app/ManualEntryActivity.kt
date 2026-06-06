@@ -6,20 +6,31 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.InputFilter
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
+import androidx.core.widget.doAfterTextChanged
 import com.bumptech.glide.Glide
 import com.expiryx.app.databinding.ActivityManualEntryBinding
+import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import java.util.regex.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
+import java.util.regex.Pattern
 
-class ManualEntryActivity : AppCompatActivity() {
+class ManualEntryActivity : ThemedAppCompatActivity() {
+
+    private enum class DateInputMode { WHEEL, CALENDAR, TEXT }
 
     private val productViewModel: ProductViewModel by viewModels {
         ProductViewModelFactory((application as ProductApplication).repository)
@@ -29,11 +40,18 @@ class ManualEntryActivity : AppCompatActivity() {
     private val dateFormat =
         SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply { isLenient = false }
 
+    private val monthLabels = arrayOf(
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    )
+
     private var editingProduct: Product? = null
     private var expiryMillis: Long? = null
     private var selectedImageUri: String? = null
     private var productBarcode: String? = null
     private var selectedWeightUnit: String = "g"
+    private var isInternalUpdate = false
+    private var dateInputMode = DateInputMode.WHEEL
 
     private val safeTextFilter = InputFilter { source, _, _, _, _, _ ->
         val allowed = Pattern.compile("^[a-zA-Z0-9 .,'&()\\-]*$")
@@ -56,36 +74,254 @@ class ManualEntryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowInsetsHelper.enableEdgeToEdge(this)
+
         binding = ActivityManualEntryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupWindowInsets()
+        setupToolbar()
         setupFilters()
-        setupWeightUnitSpinner()
+        setupWeightUnitDropdown()
+        setupExpiryDateWheel()
+        setupDateModeToggle()
         loadProductData()
         setupListeners()
+        applyDateInputMode(DateInputMode.WHEEL)
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            binding.appBarManualEntry.updatePadding(top = systemBars.top)
+            
+            binding.btnSaveProduct.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = (16 * resources.displayMetrics.density).toInt() + systemBars.bottom
+            }
+
+            // Also pad the scroll view so it doesn't end behind the button
+            binding.manualEntryScroll.updatePadding(bottom = (80 * resources.displayMetrics.density).toInt())
+
+            insets
+        }
+        ViewCompat.requestApplyInsets(binding.root)
+    }
+
+    private fun setupToolbar() {
+        binding.toolbarManualEntry.setNavigationOnClickListener { finish() }
+        binding.toolbarManualEntry.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_redo -> {
+                    androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("Reset Form")
+                        .setMessage("Are you sure you want to clear all fields?")
+                        .setPositiveButton("Reset") { _, _ -> resetForm() }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     private fun setupFilters() {
         binding.editTextProductName.filters = arrayOf(safeTextFilter, InputFilter.LengthFilter(50))
         binding.editTextBrand.filters = arrayOf(safeTextFilter, InputFilter.LengthFilter(50))
-        // Quantity: Max 4 digits (1-9999). Numerical check in saveProduct().
         binding.editTextQuantity.filters = arrayOf(InputFilter.LengthFilter(4))
-        // Weight: Max 5 digits (1–99999). Numerical check in saveProduct().
         binding.editTextWeight.filters = arrayOf(InputFilter.LengthFilter(5))
     }
 
-    private fun setupWeightUnitSpinner() {
+    private fun setupWeightUnitDropdown() {
         val weightUnits = arrayOf("g", "ml")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, weightUnits)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerWeightUnit.adapter = adapter
-
-        binding.spinnerWeightUnit.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedWeightUnit = weightUnits[position]
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, weightUnits)
+        binding.spinnerWeightUnit.setAdapter(adapter)
+        binding.spinnerWeightUnit.setText(selectedWeightUnit, false)
+        binding.spinnerWeightUnit.setOnItemClickListener { _, _, position, _ ->
+            selectedWeightUnit = weightUnits[position]
         }
+    }
+
+    private fun setupExpiryDateWheel() {
+        val wheel = binding.expiryDateWheel
+        val pickerDay = wheel.pickerDay
+        val pickerMonth = wheel.pickerMonth
+        val pickerYear = wheel.pickerYear
+
+        val today = Calendar.getInstance()
+        val startYear = today.get(Calendar.YEAR)
+        val endYear = startYear + 10
+
+        pickerYear.minValue = startYear
+        pickerYear.maxValue = endYear
+        pickerYear.value = startYear
+
+        pickerMonth.minValue = 0
+        pickerMonth.maxValue = monthLabels.size - 1
+        pickerMonth.displayedValues = monthLabels
+        pickerMonth.value = today.get(Calendar.MONTH)
+
+        updateDayPickerMax(pickerDay, pickerMonth.value + 1, pickerYear.value)
+        pickerDay.value = today.get(Calendar.DAY_OF_MONTH).coerceAtMost(pickerDay.maxValue)
+
+        val listener = NumberPicker.OnValueChangeListener { _, _, _ ->
+            if (isInternalUpdate) return@OnValueChangeListener
+            updateDayPickerMax(pickerDay, pickerMonth.value + 1, pickerYear.value)
+            syncExpiryFromPickers()
+        }
+
+        pickerDay.setOnValueChangedListener(listener)
+        pickerMonth.setOnValueChangedListener(listener)
+        pickerYear.setOnValueChangedListener(listener)
+
+        syncExpiryFromPickers()
+    }
+
+    private fun setupDateModeToggle() {
+        val wheel = binding.expiryDateWheel
+        wheel.btnToggleDateMode.setOnClickListener { cycleDateInputMode() }
+        wheel.btnOpenCalendarPicker.setOnClickListener { showCalendarPicker() }
+        wheel.editTextExpiryDate.doAfterTextChanged {
+            if (isInternalUpdate) return@doAfterTextChanged
+            if (dateInputMode == DateInputMode.TEXT) {
+                parseTextExpiryDate(wheel.editTextExpiryDate.text?.toString().orEmpty())
+            }
+        }
+    }
+
+    private fun cycleDateInputMode() {
+        val next = when (dateInputMode) {
+            DateInputMode.WHEEL -> DateInputMode.CALENDAR
+            DateInputMode.CALENDAR -> DateInputMode.TEXT
+            DateInputMode.TEXT -> DateInputMode.WHEEL
+        }
+        applyDateInputMode(next)
+        if (next == DateInputMode.CALENDAR) {
+            showCalendarPicker()
+        }
+    }
+
+    private fun applyDateInputMode(mode: DateInputMode) {
+        dateInputMode = mode
+        val wheel = binding.expiryDateWheel
+
+        val showWheel = mode == DateInputMode.WHEEL
+        wheel.containerWheel.visibility = if (showWheel) View.VISIBLE else View.GONE
+        wheel.wheelLabelsRow.visibility = if (showWheel) View.VISIBLE else View.GONE
+        wheel.containerCalendar.visibility = if (mode == DateInputMode.CALENDAR) View.VISIBLE else View.GONE
+        wheel.layoutExpiryText.visibility = if (mode == DateInputMode.TEXT) View.VISIBLE else View.GONE
+
+        wheel.btnToggleDateMode.setImageResource(
+            when (mode) {
+                DateInputMode.WHEEL -> R.drawable.ic_calendar
+                DateInputMode.CALENDAR -> R.drawable.ic_keyboard
+                DateInputMode.TEXT -> R.drawable.ic_wheel
+            }
+        )
+
+        wheel.textDateModeHint.setText(
+            when (mode) {
+                DateInputMode.WHEEL -> R.string.expiry_date_wheel_hint
+                DateInputMode.CALENDAR -> R.string.expiry_date_calendar_hint
+                DateInputMode.TEXT -> R.string.expiry_date_text_hint
+            }
+        )
+
+        expiryMillis?.let { millis ->
+            wheel.textSelectedExpiryDate.text = dateFormat.format(Date(millis))
+            if (mode == DateInputMode.TEXT) {
+                wheel.editTextExpiryDate.setText(dateFormat.format(Date(millis)))
+            }
+        }
+    }
+
+    private fun showCalendarPicker() {
+        val cal = Calendar.getInstance()
+        expiryMillis?.let { cal.timeInMillis = it }
+        DatePickerDialog(
+            this,
+            { _, y, m, d ->
+                val calendar = Calendar.getInstance().apply {
+                    set(y, m, d, 23, 59, 59)
+                    set(Calendar.MILLISECOND, 999)
+                }
+                setExpiryFromMillis(calendar.timeInMillis)
+            },
+            cal[Calendar.YEAR],
+            cal[Calendar.MONTH],
+            cal[Calendar.DAY_OF_MONTH]
+        ).show()
+    }
+
+    private fun parseTextExpiryDate(raw: String) {
+        val wheel = binding.expiryDateWheel
+        if (raw.isBlank()) {
+            expiryMillis = null
+            wheel.textSelectedExpiryDate.text = getString(R.string.expiry_date_not_set)
+            return
+        }
+        try {
+            val parsed = dateFormat.parse(raw.trim())
+            if (parsed != null) {
+                setExpiryFromMillis(parsed.time)
+                wheel.textExpiryDateError.visibility = View.GONE
+            }
+        } catch (_: ParseException) {
+            wheel.textExpiryDateError.text = getString(R.string.expiry_date_invalid)
+            wheel.textExpiryDateError.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setExpiryFromMillis(millis: Long) {
+        expiryMillis = millis
+        binding.expiryDateWheel.textSelectedExpiryDate.text = dateFormat.format(Date(millis))
+        binding.expiryDateWheel.textExpiryDateError.visibility = View.GONE
+        setPickersFromMillis(millis)
+        
+        isInternalUpdate = true
+        binding.expiryDateWheel.editTextExpiryDate.setText(dateFormat.format(Date(millis)))
+        isInternalUpdate = false
+    }
+
+    private fun updateDayPickerMax(pickerDay: NumberPicker, month: Int, year: Int) {
+        val maxDay = Calendar.getInstance().apply {
+            set(Calendar.YEAR, year)
+            set(Calendar.MONTH, month - 1)
+            set(Calendar.DAY_OF_MONTH, 1)
+        }.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+        val previousDay = pickerDay.value
+        pickerDay.minValue = 1
+        pickerDay.maxValue = maxDay
+        pickerDay.value = if (previousDay in 1..maxDay) previousDay else maxDay
+    }
+
+    private fun syncExpiryFromPickers() {
+        val wheel = binding.expiryDateWheel
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.YEAR, wheel.pickerYear.value)
+            set(Calendar.MONTH, wheel.pickerMonth.value)
+            set(Calendar.DAY_OF_MONTH, wheel.pickerDay.value)
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }
+        expiryMillis = calendar.timeInMillis
+        wheel.textSelectedExpiryDate.text = dateFormat.format(calendar.time)
+        wheel.textExpiryDateError.visibility = View.GONE
+    }
+
+    private fun setPickersFromMillis(millis: Long) {
+        val calendar = Calendar.getInstance().apply { timeInMillis = millis }
+        val wheel = binding.expiryDateWheel
+
+        isInternalUpdate = true
+        wheel.pickerYear.value = calendar.get(Calendar.YEAR)
+        wheel.pickerMonth.value = calendar.get(Calendar.MONTH)
+        updateDayPickerMax(wheel.pickerDay, wheel.pickerMonth.value + 1, wheel.pickerYear.value)
+        wheel.pickerDay.value = calendar.get(Calendar.DAY_OF_MONTH)
+        isInternalUpdate = false
     }
 
     private fun loadProductData() {
@@ -100,20 +336,15 @@ class ManualEntryActivity : AppCompatActivity() {
         productBarcode = intent.getStringExtra("barcode") ?: editingProduct?.barcode
 
         editingProduct?.let { product ->
+            binding.toolbarManualEntry.title = "Edit Product"
             binding.editTextProductName.setText(product.name)
             binding.editTextBrand.setText(product.brand)
-            product.expirationDate?.let {
-                expiryMillis = it
-                binding.editTextExpirationDate.setText(dateFormat.format(Date(it)))
-            }
+            product.expirationDate?.let { setExpiryFromMillis(it) }
             binding.editTextQuantity.setText(product.quantity.toString())
             binding.editTextWeight.setText(product.weight?.toString() ?: "")
             binding.checkboxFavorite.isChecked = product.isFavorite
-
-            // Set weight unit spinner
-            val weightUnitPosition = if (product.weightUnit == "ml") 1 else 0
-            binding.spinnerWeightUnit.setSelection(weightUnitPosition)
             selectedWeightUnit = product.weightUnit
+            binding.spinnerWeightUnit.setText(product.weightUnit, false)
         }
 
         if (!productBarcode.isNullOrBlank()) {
@@ -134,6 +365,7 @@ class ManualEntryActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        binding.btnSaveProduct.setOnClickListener { saveProduct() }
         binding.imageProductPreview.setOnClickListener { pickImageLauncher.launch(arrayOf("image/*")) }
         binding.imageProductPreview.setOnLongClickListener {
             selectedImageUri = null
@@ -141,65 +373,76 @@ class ManualEntryActivity : AppCompatActivity() {
             Toast.makeText(this, "Image removed", Toast.LENGTH_SHORT).show()
             true
         }
-        binding.editTextExpirationDate.setOnClickListener { showDatePicker() }
-        binding.buttonSaveProduct.setOnClickListener { saveProduct() }
-        binding.buttonCancel.setOnClickListener { finish() }
     }
 
-    private fun showDatePicker() {
-        val cal = Calendar.getInstance()
-        editingProduct?.expirationDate?.let { cal.timeInMillis = it }
-        DatePickerDialog(
-            this,
-            { _, y, m, d ->
-                val calendar = Calendar.getInstance().apply {
-                    set(y, m, d, 23, 59, 59)
-                    set(Calendar.MILLISECOND, 999)
-                }
-                expiryMillis = calendar.timeInMillis
-                binding.editTextExpirationDate.setText(dateFormat.format(calendar.time))
-            },
-            cal[Calendar.YEAR],
-            cal[Calendar.MONTH],
-            cal[Calendar.DAY_OF_MONTH]
-        ).show()
+    private fun resetForm() {
+        if (editingProduct != null) {
+            loadProductData()
+        } else {
+            binding.editTextProductName.text?.clear()
+            binding.editTextBrand.text?.clear()
+            binding.editTextQuantity.text?.clear()
+            binding.editTextWeight.text?.clear()
+            binding.checkboxFavorite.isChecked = false
+            expiryMillis = null
+            binding.expiryDateWheel.textSelectedExpiryDate.text = getString(R.string.expiry_date_not_set)
+            binding.expiryDateWheel.editTextExpiryDate.text?.clear()
+            // Reset pickers to today
+            val today = Calendar.getInstance()
+            setPickersFromMillis(today.timeInMillis)
+            
+            selectedImageUri = null
+            binding.imageProductPreview.setImageResource(R.drawable.ic_placeholder)
+        }
+        Toast.makeText(this, "Form reset", Toast.LENGTH_SHORT).show()
     }
 
     private fun saveProduct() {
         val name = binding.editTextProductName.text.toString().trim()
         if (name.isEmpty()) {
-            binding.editTextProductName.error = "Product name is required"
+            binding.layoutProductName.error = "Product name is required"
             return
+        }
+        binding.layoutProductName.error = null
+
+        if (dateInputMode == DateInputMode.TEXT) {
+            parseTextExpiryDate(binding.expiryDateWheel.editTextExpiryDate.text?.toString().orEmpty())
         }
 
-        if (binding.editTextExpirationDate.text.toString().trim().isEmpty()) {
-            binding.editTextExpirationDate.error = "Expiry date is required"
+        val finalExpiryMillis = expiryMillis
+        if (finalExpiryMillis == null) {
+            binding.expiryDateWheel.textExpiryDateError.text = getString(R.string.error_expiry_date_required)
+            binding.expiryDateWheel.textExpiryDateError.visibility = View.VISIBLE
             return
         }
-        val finalExpiryMillis = expiryMillis ?: return
+        binding.expiryDateWheel.textExpiryDateError.visibility = View.GONE
 
         val brand = binding.editTextBrand.text.toString().trim().takeIf { it.isNotBlank() }
 
-        val qtyString = binding.editTextQuantity.text.toString()
-        val qtyInt = qtyString.toIntOrNull()
-        if (qtyInt == null || qtyInt < 1 || qtyInt > 9999) {
-            binding.editTextQuantity.error = "Quantity must be between 1 and 9999"
-            return
+        val qtyString = binding.editTextQuantity.text.toString().trim()
+        val qtyInt = if (qtyString.isBlank()) {
+            1
+        } else {
+            qtyString.toIntOrNull()?.takeIf { it in 1..9999 } ?: run {
+                binding.layoutQuantity.error = "Quantity must be between 1 and 9999"
+                return
+            }
         }
+        binding.layoutQuantity.error = null
 
-        // Weight validation (optional, 1–99999)
         val weightString = binding.editTextWeight.text.toString()
         val parsedWeight = weightString.toIntOrNull()
         val finalWeight: Int?
         if (weightString.isNotBlank()) {
             if (parsedWeight == null || parsedWeight < 1 || parsedWeight > 99999) {
-                binding.editTextWeight.error = "Weight must be between 1 and 99999"
+                binding.layoutWeight.error = "Weight must be between 1 and 99999"
                 return
             }
             finalWeight = parsedWeight
         } else {
-            finalWeight = null // Optional
+            finalWeight = null
         }
+        binding.layoutWeight.error = null
 
         val currentTime = System.currentTimeMillis()
         val isEditing = editingProduct != null && editingProduct!!.id != 0
@@ -233,4 +476,3 @@ class ManualEntryActivity : AppCompatActivity() {
         finish()
     }
 }
-

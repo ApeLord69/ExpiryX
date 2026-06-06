@@ -18,7 +18,7 @@ object ExpiryBucketUtils {
         BucketDefinition("Expiring tomorrow", R.color.yellow) { it == 1L },
         BucketDefinition("Expiring in 2-3 days", R.color.green) { it != null && it in 2L..3L },
         BucketDefinition("Expiring in 4-14 days", R.color.blue) { it != null && it in 4L..14L },
-        BucketDefinition("Expiring in 15-90 days", R.color.teal_200) { it != null && it in 15L..90L },
+        BucketDefinition("Expiring in 15-90 days", R.color.grey_600) { it != null && it in 15L..90L },
         BucketDefinition("Expiring in 3-12 months", R.color.purple) { it != null && it in 91L..365L },
         BucketDefinition("Expiring in 1+ year", R.color.gray) { it != null && it > 365L },
         BucketDefinition("No expiry date", R.color.gray) { it == null },

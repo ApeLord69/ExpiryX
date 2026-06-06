@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorBackground"
+    android:background="?android:attr/colorBackground"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -83,11 +83,17 @@
         </HorizontalScrollView>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/nav_separator"
+        android:layout_below="@id/topBar" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/statsScroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottomNavWrapper"
+        android:layout_above="@id/bottomNav"
         android:layout_below="@id/topBar"
         android:clipToPadding="false"
         android:paddingBottom="16dp">
@@ -438,125 +444,10 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <LinearLayout
-        android:id="@+id/bottomNavWrapper"
+    <include
+        android:id="@+id/bottomNav"
+        layout="@layout/include_bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="?attr/colorBackground"
-        android:elevation="6dp"
-        android:orientation="vertical">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?attr/colorOutline" />
-
-        <LinearLayout
-            android:id="@+id/bottomNav"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingHorizontal="4dp"
-            android:paddingTop="4dp"
-            android:weightSum="4">
-
-            <LinearLayout
-                android:id="@+id/navHomeWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/navHome"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="@string/nav_home_desc"
-                    android:src="@drawable/ic_home_unfilled"
-                    android:tint="?attr/colorOnSurface" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/nav_home"
-                    android:textColor="?attr/colorOnBackground"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/navHistoryWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/navHistory"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="@string/nav_history_desc"
-                    android:src="@drawable/ic_clock_unfilled"
-                    android:tint="?attr/colorOnSurface" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/nav_history"
-                    android:textColor="?attr/colorOnBackground"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/navStatsWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/navStats"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="@string/nav_stats_desc"
-                    android:src="@drawable/ic_stats_filled"
-                    android:tint="?attr/colorPrimary" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/nav_stats"
-                    android:textColor="?attr/colorOnBackground"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/navSettingsWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/navSettings"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="@string/nav_settings_desc"
-                    android:src="@drawable/ic_settings_unfilled"
-                    android:tint="?attr/colorOnSurface" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/nav_settings"
-                    android:textColor="?attr/colorOnBackground"
-                    android:textSize="12sp" />
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_alignParentBottom="true" />
 </RelativeLayout>

@@ -17,7 +17,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : ThemedAppCompatActivity() {
 
     private var googleSignInClient: GoogleSignInClient? = null
     private lateinit var progressBar: ProgressBar
@@ -38,12 +38,22 @@ class LoginActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
-                val account = task.getResult(ApiException::class.java)!!
-                firebaseAuthWithGoogle(account.idToken!!)
+                val account = task.getResult(ApiException::class.java)
+                val idToken = account?.idToken
+                if (idToken.isNullOrBlank()) {
+                    setLoading(false)
+                    Toast.makeText(
+                        this,
+                        getString(R.string.error_google_sign_in_failed, "Missing ID token"),
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@registerForActivityResult
+                }
+                firebaseAuthWithGoogle(idToken)
             } catch (e: ApiException) {
                 setLoading(false)
                 Log.e("LoginActivity", "Google sign in failed", e)
-                Toast.makeText(this, "Google sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.error_google_sign_in_failed, e.message), Toast.LENGTH_SHORT).show()
             }
         } else {
             setLoading(false)
@@ -110,7 +120,7 @@ class LoginActivity : AppCompatActivity() {
         val currentAuth = auth
         if (currentAuth == null) {
             setLoading(false)
-            Toast.makeText(this, "Firebase Authentication is unavailable.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.error_firebase_unavailable), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -124,7 +134,7 @@ class LoginActivity : AppCompatActivity() {
                 } else {
                     setLoading(false)
                     Log.e("LoginActivity", "Firebase auth failed", task.exception)
-                    Toast.makeText(this, "Authentication Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.error_auth_failed, task.exception?.message), Toast.LENGTH_SHORT).show()
                 }
             }
     }

@@ -27,7 +27,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.PercentFormatter
 import java.util.Locale
 
-class StatsActivity : AppCompatActivity() {
+class StatsActivity : ThemedAppCompatActivity() {
 
     private lateinit var binding: ActivityStatsBinding
 
@@ -74,28 +74,7 @@ class StatsActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNav() {
-        binding.navHomeWrapper.setOnClickListener { navigateTo(MainActivity::class.java) }
-        binding.navHistoryWrapper.setOnClickListener { navigateTo(HistoryActivity::class.java) }
-        binding.navStatsWrapper.setOnClickListener { /* current screen */ }
-        binding.navSettingsWrapper.setOnClickListener { navigateTo(SettingsActivity::class.java) }
-        highlightCurrentTab()
-    }
-
-    private fun navigateTo(target: Class<*>) {
-        startActivity(Intent(this, target).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-        overridePendingTransition(0, 0)
-        finish()
-    }
-
-    private fun highlightCurrentTab() {
-        binding.navHome.setImageResource(R.drawable.ic_home_unfilled)
-        binding.navHistory.setImageResource(R.drawable.ic_clock_unfilled)
-        binding.navStats.setImageResource(R.drawable.ic_stats_filled)
-        binding.navSettings.setImageResource(R.drawable.ic_settings_unfilled)
-        binding.navStats.setColorFilter(ContextCompat.getColor(this, R.color.teal_700))
-        binding.navHome.clearColorFilter()
-        binding.navHistory.clearColorFilter()
-        binding.navSettings.clearColorFilter()
+        BottomNavHelper.setup(this, binding.bottomNav.bottomNavigationView, R.id.nav_stats)
     }
 
     private fun setupAccountCard() {

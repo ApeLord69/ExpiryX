@@ -15,7 +15,7 @@ import com.expiryx.app.databinding.ActivityHistoryBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
-class HistoryActivity : AppCompatActivity() {
+class HistoryActivity : ThemedAppCompatActivity() {
 
     private lateinit var binding: ActivityHistoryBinding
     private lateinit var adapter: HistoryAdapter
@@ -39,21 +39,15 @@ class HistoryActivity : AppCompatActivity() {
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Highlight nav icons
-        binding.navHome.setImageResource(R.drawable.ic_home_unfilled)
-        binding.navHistory.setImageResource(R.drawable.ic_clock_filled)
-        binding.navStats.setImageResource(R.drawable.ic_stats_unfilled)
-        binding.navSettings.setImageResource(R.drawable.ic_settings_unfilled)
-
         // Setup RecyclerView
         adapter = HistoryAdapter(
             onItemClick = { h -> HistoryDetailBottomSheet.newInstance(h).show(supportFragmentManager, "HistoryDetail") },
             onItemLongPress = { h ->
                 AlertDialog.Builder(this)
-                    .setTitle("Permanently Delete")
-                    .setMessage("Are you sure you want to permanently delete ${h.productName}? This cannot be undone.")
-                    .setPositiveButton("Delete") { _, _ -> viewModel.permanentlyDelete(h) }
-                    .setNegativeButton("Cancel", null)
+                    .setTitle(getString(R.string.history_permanently_delete_title))
+                    .setMessage(getString(R.string.history_permanently_delete_msg, h.productName))
+                    .setPositiveButton(getString(R.string.delete)) { _, _ -> viewModel.permanentlyDelete(h) }
+                    .setNegativeButton(getString(R.string.cancel), null)
                     .show()
             },
         )
@@ -172,24 +166,7 @@ class HistoryActivity : AppCompatActivity() {
 
     // ---------- NAV ----------
     private fun setupBottomNav() {
-        binding.navHomeWrapper.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-            overridePendingTransition(0, 0)
-            finish()
-        }
-        binding.navHistoryWrapper.setOnClickListener {
-            // Already here
-        }
-        binding.navStatsWrapper.setOnClickListener {
-            startActivity(Intent(this, StatsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-            overridePendingTransition(0, 0)
-            finish()
-        }
-        binding.navSettingsWrapper.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-            overridePendingTransition(0, 0)
-            finish()
-        }
+        BottomNavHelper.setup(this, binding.bottomNav.bottomNavigationView, R.id.nav_history)
     }
 
     // ---------- FILTERS & SORT ----------

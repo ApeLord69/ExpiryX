@@ -4,8 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
@@ -37,6 +35,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
+@ExperimentalGetImage
 class BarcodeScannerActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
@@ -57,9 +56,19 @@ class BarcodeScannerActivity : AppCompatActivity() {
         }
     }
 
+    @ExperimentalGetImage
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowInsetsHelper.enableEdgeToEdge(this)
         setContentView(R.layout.activity_barcode_scanner)
+
+        val root = findViewById<View>(R.id.cameraRoot)
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
+        androidx.core.view.ViewCompat.requestApplyInsets(root)
 
         previewView = findViewById(R.id.previewView)
         progressBar = findViewById(R.id.progressBarScan)

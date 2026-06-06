@@ -50,6 +50,7 @@ class HistoryDetailBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        WindowInsetsHelper.setupBottomSheetEdgeToEdge(this, binding.root)
         populateUI(history)
         setupListeners(history)
     }
@@ -101,36 +102,36 @@ class HistoryDetailBottomSheet : BottomSheetDialogFragment() {
         // Actions based on type
         when (history.action) {
             "Deleted" -> {
-                binding.btnPrimary.text = "Restore"
+                binding.btnPrimary.text = getString(R.string.restore)
                 binding.btnPrimary.setOnClickListener {
                     viewModel.restoreDeleted(history)
                     dismiss()
                 }
             }
             "Used" -> {
-                binding.btnPrimary.text = "Un-use"
+                binding.btnPrimary.text = getString(R.string.history_action_unuse)
                 binding.btnPrimary.setOnClickListener {
                     viewModel.unuse(history)
                     dismiss()
                 }
             }
             "Expired" -> {
-                binding.btnPrimary.text = "Change Expiry & Restore"
+                binding.btnPrimary.text = getString(R.string.history_action_restore_expiry)
                 binding.btnPrimary.setOnClickListener { showDatePicker(history) } 
             }
         }
 
         // Permanent delete
-        binding.btnSecondary.text = "Permanently Delete"
+        binding.btnSecondary.text = getString(R.string.history_permanently_delete_title)
         binding.btnSecondary.setOnClickListener {
             AlertDialog.Builder(requireContext())
-                .setTitle("Permanently Delete")
-                .setMessage("Are you sure you want to permanently delete ${history.productName}? This cannot be undone.")
-                .setPositiveButton("Delete") { _, _ ->
+                .setTitle(getString(R.string.history_permanently_delete_title))
+                .setMessage(getString(R.string.history_permanently_delete_msg, history.productName))
+                .setPositiveButton(getString(R.string.delete)) { _, _ ->
                     viewModel.permanentlyDelete(history)
                     dismiss()
                 }
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(getString(R.string.cancel), null)
                 .show()
         }
     }
@@ -143,7 +144,7 @@ class HistoryDetailBottomSheet : BottomSheetDialogFragment() {
                 val calendar = Calendar.getInstance().apply { set(y, m, d, 23, 59, 59); set(Calendar.MILLISECOND, 999) }
                 val newExpiryMillis = calendar.timeInMillis
                 viewModel.changeExpiry(historyForRestore, newExpiryMillis) 
-                Toast.makeText(requireContext(), "Expiry updated & restored", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.history_toast_restored), Toast.LENGTH_SHORT).show()
                 dismiss()
             },
             cal.get(Calendar.YEAR),

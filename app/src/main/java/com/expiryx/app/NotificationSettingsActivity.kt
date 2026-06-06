@@ -13,7 +13,6 @@ import android.widget.ImageButton
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,7 +24,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NotificationSettingsActivity : AppCompatActivity() {
+class NotificationSettingsActivity : ThemedAppCompatActivity() {
 
     private lateinit var binding: ActivityNotificationSettingsBinding
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())

@@ -1,6 +1,5 @@
 package com.expiryx.app
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,7 +10,8 @@ import com.bumptech.glide.Glide
 import com.expiryx.app.databinding.BottomSheetProductDetailBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class ProductDetailBottomSheet : BottomSheetDialogFragment() {
 
@@ -33,6 +33,7 @@ class ProductDetailBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        WindowInsetsHelper.setupBottomSheetEdgeToEdge(this, binding.root)
 
         val product = arguments?.getParcelable<Product>(ARG_PRODUCT) ?: return
         populateUI(product)
@@ -40,21 +41,27 @@ class ProductDetailBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun populateUI(p: Product) {
-        // --- Image ---
         Glide.with(requireContext())
             .load(if (p.imageUri.isNullOrBlank()) R.drawable.ic_placeholder else Uri.parse(p.imageUri))
             .error(R.drawable.ic_placeholder)
+            .centerCrop()
             .into(binding.imgProductDetail)
 
-        // --- Core fields ---
         binding.txtDetailName.text = p.name
         binding.txtDetailBrand.text = p.brand
         binding.txtDetailBrand.visibility = if (p.brand.isNullOrBlank()) View.GONE else View.VISIBLE
 
-        binding.txtDetailExpiry.text = getString(R.string.expires_on_label, p.expirationDate?.let { formatDate(it) } ?: "N/A")
+        binding.txtDetailExpiry.text = getString(
+            R.string.expires_on_detail,
+            ExpiryDisplayUtils.formatExpiryDate(p.expirationDate)
+        )
+
+        val daysLabel = ExpiryDisplayUtils.formatDaysRemaining(requireContext(), p.expirationDate)
+        binding.txtDetailDaysRemaining.text = daysLabel
+        ExpiryDisplayUtils.applyTrafficLightPill(binding.txtDetailDaysRemaining, p.expirationDate)
+
         binding.txtDetailQuantity.text = getString(R.string.quantity_label, p.quantity)
 
-        // --- Optional fields ---
         if (p.weight != null) {
             binding.txtDetailWeight.text = getString(R.string.weight_label, p.weight, p.weightUnit)
             binding.txtDetailWeight.visibility = View.VISIBLE
@@ -62,7 +69,6 @@ class ProductDetailBottomSheet : BottomSheetDialogFragment() {
             binding.txtDetailWeight.visibility = View.GONE
         }
 
-        // --- Barcode display ---
         if (!p.barcode.isNullOrBlank()) {
             binding.txtDetailBarcode.text = "${getString(R.string.barcode_label)} ${p.barcode}"
             binding.txtDetailBarcode.visibility = View.VISIBLE
@@ -70,9 +76,8 @@ class ProductDetailBottomSheet : BottomSheetDialogFragment() {
             binding.txtDetailBarcode.visibility = View.GONE
         }
 
-        // --- Timestamps ---
         binding.txtDetailDateAdded.text = "${getString(R.string.added_label)} ${formatDateTime(p.dateAdded)}"
-        
+
         if (p.dateModified != null) {
             binding.txtDetailDateModified.text = "${getString(R.string.modified_label)} ${formatDateTime(p.dateModified)}"
             binding.txtDetailDateModified.visibility = View.VISIBLE
@@ -100,11 +105,6 @@ class ProductDetailBottomSheet : BottomSheetDialogFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun formatDate(millis: Long): String {
-        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        return sdf.format(Date(millis))
     }
 
     private fun formatDateTime(millis: Long): String {

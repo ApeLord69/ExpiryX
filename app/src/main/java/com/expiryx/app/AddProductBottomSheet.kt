@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,10 +46,10 @@ class AddProductBottomSheet : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.bottom_sheet_add_product, container, false)
 
-        val optionManual: LinearLayout = view.findViewById(R.id.optionManual)
-        val optionCamera: LinearLayout = view.findViewById(R.id.optionCamera)
-        val optionUpload: LinearLayout = view.findViewById(R.id.optionUpload)
-        val optionCancel: View = view.findViewById(R.id.optionCancel)
+        val optionManual: View = view.findViewById(R.id.optionManual)
+        val optionCamera: View = view.findViewById(R.id.optionCamera)
+        val optionUpload: View = view.findViewById(R.id.optionUpload)
+        val btnClose: View = view.findViewById(R.id.btnCloseSheet)
         progressBar = view.findViewById(R.id.progressBarUpload)
 
         optionManual.setOnClickListener {
@@ -66,15 +65,15 @@ class AddProductBottomSheet : BottomSheetDialogFragment() {
         optionUpload.setOnClickListener {
             pickImageLauncher.launch(arrayOf("image/*"))
         }
-        optionCancel.setOnClickListener { dismissAllowingStateLoss() }
+        btnClose.setOnClickListener { dismissAllowingStateLoss() }
 
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        WindowInsetsHelper.setupBottomSheetEdgeToEdge(this, view.findViewById(R.id.addProductBottomRoot))
         arguments?.getParcelable<Uri>(ARG_INITIAL_IMAGE_URI)?.let { uri ->
-            // If a URI was passed via arguments, analyze it directly
             analyseImageForBarcode(uri)
         }
     }
@@ -83,7 +82,7 @@ class AddProductBottomSheet : BottomSheetDialogFragment() {
         progressBar?.isVisible = show
         isCancelable = !show
     }
-    
+
     private fun analyseImageForBarcode(uri: Uri) {
         showLoading(true)
         try {
@@ -104,18 +103,18 @@ class AddProductBottomSheet : BottomSheetDialogFragment() {
                     else {
                         showLoading(false)
                         Toast.makeText(requireContext(), "No barcode found in image", Toast.LENGTH_SHORT).show()
-                        dismissAllowingStateLoss() // Dismiss if no barcode found when launched with URI
+                        dismissAllowingStateLoss()
                     }
                 }
                 .addOnFailureListener {
                     showLoading(false)
                     Toast.makeText(requireContext(), "Failed to analyse image", Toast.LENGTH_SHORT).show()
-                    dismissAllowingStateLoss() // Dismiss on failure when launched with URI
+                    dismissAllowingStateLoss()
                 }
         } catch (e: Exception) {
             showLoading(false)
             Toast.makeText(requireContext(), "Error reading image", Toast.LENGTH_SHORT).show()
-            dismissAllowingStateLoss() // Dismiss on error when launched with URI
+            dismissAllowingStateLoss()
         }
     }
 
@@ -149,14 +148,13 @@ class AddProductBottomSheet : BottomSheetDialogFragment() {
                     val name = prod.optString("product_name", "").trim()
                     val apiImage = prod.optString("image_url", null)
 
-                    // Determine weight unit from API response
                     val weightString = prod.optString("quantity", "")
                     val weightUnit = when {
                         weightString.contains("ml", ignoreCase = true) -> "ml"
                         weightString.contains("g", ignoreCase = true) -> "g"
-                        else -> "g" // Default to grams
+                        else -> "g"
                     }
-                    
+
                     val product = Product(
                         id = 0,
                         name = name,
@@ -167,7 +165,7 @@ class AddProductBottomSheet : BottomSheetDialogFragment() {
                         weightUnit = weightUnit,
                         imageUri = apiImage ?: uploadedImage.toString(),
                         isFavorite = false,
-                        barcode = barcode, // Store the extracted barcode
+                        barcode = barcode,
                         dateAdded = System.currentTimeMillis(),
                         dateModified = null
                     )
@@ -176,7 +174,7 @@ class AddProductBottomSheet : BottomSheetDialogFragment() {
                     startActivity(Intent(requireContext(), ManualEntryActivity::class.java).apply {
                         putExtra("product", product)
                         putExtra("isEdit", false)
-                        putExtra("barcode", barcode) // Also pass barcode separately
+                        putExtra("barcode", barcode)
                     })
                     dismissAllowingStateLoss()
                 } else {

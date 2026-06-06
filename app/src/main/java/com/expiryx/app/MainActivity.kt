@@ -14,7 +14,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.expiryx.app.databinding.ActivityMainBinding
@@ -22,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ThemedAppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: ProductAdapter
@@ -67,16 +69,19 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowInsetsHelper.enableEdgeToEdge(this)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupWindowInsets()
         NotificationUtils.createChannel(this)
         productViewModel.archiveExpiredProducts()
 
         setupRecycler()
         setupObservers()
         setupListeners()
-        highlightBottomNav(BottomTab.HOME)
+        setupBottomNavigation()
 
         if (AccountManager.isLoggedIn()) {
             AccountManager.startSync(this)
@@ -84,6 +89,20 @@ class MainActivity : AppCompatActivity() {
 
         checkAndMaybeRequestNotificationPermission()
         handleNotificationIntent(intent)
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rootCoordinator) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            binding.topBar.updatePadding(top = systemBars.top)
+
+            // Padding for the list so last items aren't hidden by FAB
+            binding.recyclerProducts.updatePadding(bottom = 100)
+
+            insets
+        }
+        ViewCompat.requestApplyInsets(binding.rootCoordinator)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -109,10 +128,13 @@ class MainActivity : AppCompatActivity() {
             onFavoriteClick = { p -> productViewModel.update(p.copy(isFavorite = !p.isFavorite)) },
             onItemClick = { p -> ProductDetailBottomSheet.newInstance(p).show(supportFragmentManager, "Detail") },
             onDeleteLongPress = { deleteProductWithConfirmation(it) },
-            onBrowseClick = { product -> openProductInBrowser(product) } // MODIFIED: Added onBrowseClick
         )
         binding.recyclerProducts.layoutManager = LinearLayoutManager(this)
         binding.recyclerProducts.adapter = adapter
+    }
+
+    private fun setupBottomNavigation() {
+        BottomNavHelper.setup(this, binding.bottomNavInclude.bottomNavigationView, R.id.nav_home)
     }
 
     private fun setupObservers() {
@@ -128,22 +150,6 @@ class MainActivity : AppCompatActivity() {
             putExtra("imageUri", product.imageUri)
         }
         startActivity(intent)
-    }
-
-    private fun openProductInBrowser(product: Product) {
-        try {
-            val query = buildString {
-                append(product.name)
-                product.brand?.let { append(" $it") }
-                product.weight?.let { append(" $it${product.weightUnit}") }
-            }.trim()
-            val searchQuery = Uri.encode(query)
-            val searchUrl = "https://www.google.com/search?q=$searchQuery"
-            val intent = Intent(Intent.ACTION_VIEW, searchUrl.toUri())
-            startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(this, "No browser available to open link", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun setupListeners() {
@@ -169,8 +175,8 @@ class MainActivity : AppCompatActivity() {
                     val queryText = newText.lowercase(Locale.getDefault())
                     allProducts.filter { product ->
                         product.name.lowercase(Locale.getDefault()).contains(queryText) ||
-                        (product.brand?.lowercase(Locale.getDefault())?.contains(queryText) ?: false) ||
-                        (product.barcode?.lowercase(Locale.getDefault())?.contains(queryText) ?: false)
+                            (product.brand?.lowercase(Locale.getDefault())?.contains(queryText) ?: false) ||
+                            (product.barcode?.lowercase(Locale.getDefault())?.contains(queryText) ?: false)
                     }
                 } else allProducts
                 updateList(filtered, fromSearch = !newText.isNullOrBlank())
@@ -186,23 +192,6 @@ class MainActivity : AppCompatActivity() {
             if (!binding.searchView.query.isNullOrEmpty()) binding.searchView.setQuery("", false)
             else closeSearchCompletely()
         }
-
-        binding.navHomeWrapper.setOnClickListener { highlightBottomNav(BottomTab.HOME) }
-        binding.navHistoryWrapper.setOnClickListener {
-            startActivity(Intent(this, HistoryActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-            overridePendingTransition(0, 0)
-            finish()
-        }
-        binding.navStatsWrapper.setOnClickListener {
-            startActivity(Intent(this, StatsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-            overridePendingTransition(0, 0)
-            finish()
-        }
-        binding.navSettingsWrapper.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-            overridePendingTransition(0, 0)
-            finish()
-        }
     }
 
     private fun showAddProductOptions() {
@@ -212,17 +201,17 @@ class MainActivity : AppCompatActivity() {
     private fun showSortOptions(anchor: View) {
         val popup = android.widget.PopupMenu(this, anchor)
         popup.menu.apply {
-            add(0, 1, 0, "Expiry Soonest")
-            add(0, 2, 0, "Expiry Latest")
-            add(0, 3, 0, "Name A–Z")
-            add(0, 4, 0, "Name Z–A")
-            add(0, 5, 0, "Quantity Low→High")
-            add(0, 6, 0, "Quantity High→Low")
-            add(0, 7, 0, "Weight Low→High")
-            add(0, 8, 0, "Weight High→Low")
-            add(0, 9, 0, "Favorites First")
-            add(0, 10, 0, "Added: Oldest First")
-            add(0, 11, 0, "Added: Newest First")
+            add(0, 1, 0, getString(R.string.sort_expiry_soon))
+            add(0, 2, 0, getString(R.string.sort_expiry_late))
+            add(0, 3, 0, getString(R.string.sort_name_az))
+            add(0, 4, 0, getString(R.string.sort_name_za))
+            add(0, 5, 0, getString(R.string.sort_qty_low))
+            add(0, 6, 0, getString(R.string.sort_qty_high))
+            add(0, 7, 0, getString(R.string.sort_weight_low))
+            add(0, 8, 0, getString(R.string.sort_weight_high))
+            add(0, 9, 0, getString(R.string.sort_favorites))
+            add(0, 10, 0, getString(R.string.sort_added_old))
+            add(0, 11, 0, getString(R.string.sort_added_new))
         }
         popup.setOnMenuItemClickListener { item ->
             sortMode = when (item.itemId) {
@@ -253,12 +242,12 @@ class MainActivity : AppCompatActivity() {
             SortMode.ALPHA_AZ -> list.sortedBy { it.name.lowercase(Locale.getDefault()) }
             SortMode.ALPHA_ZA -> list.sortedByDescending { it.name.lowercase(Locale.getDefault()) }
             SortMode.EXPIRY_ASC -> list.sortedBy { it.expirationDate ?: Long.MAX_VALUE }
-            SortMode.EXPIRY_DESC -> list.sortedByDescending { it.expirationDate ?: 0L } // Using 0L for nulls to be at the end
+            SortMode.EXPIRY_DESC -> list.sortedByDescending { it.expirationDate ?: 0L }
             SortMode.QTY_ASC -> list.sortedBy { it.quantity }
             SortMode.QTY_DESC -> list.sortedByDescending { it.quantity }
             SortMode.WEIGHT_ASC -> list.sortedBy { it.weight ?: Int.MAX_VALUE }
             SortMode.WEIGHT_DESC -> list.sortedByDescending { it.weight ?: 0 }
-            SortMode.FAVORITES_FIRST -> list.sortedByDescending { it.isFavorite } // true comes before false
+            SortMode.FAVORITES_FIRST -> list.sortedByDescending { it.isFavorite }
             SortMode.ADDED_ASC -> list.sortedBy { it.dateAdded }
             SortMode.ADDED_DESC -> list.sortedByDescending { it.dateAdded }
         }
@@ -268,18 +257,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateList(products: List<Product>, fromSearch: Boolean = false) {
-        if (allProducts.isEmpty() && !fromSearch) { // Only show initial empty state if not searching
+        if (allProducts.isEmpty() && !fromSearch) {
             binding.recyclerProducts.visibility = View.GONE
             binding.emptyStateContainer.visibility = View.VISIBLE
-            binding.emptyStateImage.setImageResource(R.drawable.ic_carton_scan)
-            binding.emptyStateTitle.text = getString(R.string.empty_state_title_no_products)
-            binding.emptyStateSubtitle.text = getString(R.string.empty_state_subtitle_no_products)
+            binding.emptyStateImage.setImageResource(R.drawable.ic_placeholder)
+            binding.emptyStateTitle.text = getString(R.string.empty_fridge_title)
+            binding.emptyStateSubtitle.text = getString(R.string.empty_fridge_subtitle)
         } else if (products.isEmpty()) {
             binding.recyclerProducts.visibility = View.GONE
             binding.emptyStateContainer.visibility = View.VISIBLE
-            binding.emptyStateImage.setImageResource(if (showFavoritesOnly) R.drawable.ic_heart_unfilled else R.drawable.ic_search_unfilled)
-            binding.emptyStateTitle.text = if (showFavoritesOnly) getString(R.string.empty_state_title_no_favorites) else getString(R.string.empty_state_title_no_results)
-            binding.emptyStateSubtitle.text = if (showFavoritesOnly) getString(R.string.empty_state_subtitle_no_favorites) else getString(R.string.empty_state_subtitle_no_results)
+            binding.emptyStateImage.setImageResource(
+                if (showFavoritesOnly) R.drawable.ic_heart_unfilled else R.drawable.ic_search_unfilled
+            )
+            binding.emptyStateTitle.text = if (showFavoritesOnly) {
+                getString(R.string.empty_state_title_no_favorites)
+            } else {
+                getString(R.string.empty_state_title_no_results)
+            }
+            binding.emptyStateSubtitle.text = if (showFavoritesOnly) {
+                getString(R.string.empty_state_subtitle_no_favorites)
+            } else {
+                getString(R.string.empty_state_subtitle_no_results)
+            }
         } else {
             binding.recyclerProducts.visibility = View.VISIBLE
             binding.emptyStateContainer.visibility = View.GONE
@@ -289,13 +288,13 @@ class MainActivity : AppCompatActivity() {
 
     fun deleteProductWithConfirmation(product: Product) {
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Delete Product")
-            .setMessage("Are you sure you want to delete ${product.name}?")
-            .setPositiveButton("Delete") { _, _ ->
+            .setTitle(getString(R.string.dialog_delete_title))
+            .setMessage(getString(R.string.dialog_delete_message, product.name))
+            .setPositiveButton(getString(R.string.delete)) { _, _ ->
                 productViewModel.delete(product)
                 NotificationScheduler.cancelForProduct(this, product)
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
@@ -303,34 +302,28 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             productViewModel.markAsUsed(product)
             NotificationScheduler.cancelForProduct(this@MainActivity, product)
-            Toast.makeText(this@MainActivity, "${product.name} moved to history (Used)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MainActivity, getString(R.string.toast_product_used, product.name), Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun openSearch() {
         binding.searchView.visibility = View.VISIBLE
-        binding.searchView.isIconified = false // Expand the search view
+        binding.searchView.isIconified = false
         binding.searchView.requestFocus()
     }
 
     private fun closeSearchCompletely() {
-        binding.searchView.setQuery("", false) // Clear the query
-        binding.searchView.clearFocus() // Remove focus
-        binding.searchView.visibility = View.GONE // Hide the search view
-        refreshList() // Refresh the list to show all items
-    }
-
-    private fun highlightBottomNav(tab: BottomTab) {
-        binding.navHome.setImageResource(if (tab == BottomTab.HOME) R.drawable.ic_home_filled else R.drawable.ic_home_unfilled)
-        binding.navHistory.setImageResource(if (tab == BottomTab.HISTORY) R.drawable.ic_clock_filled else R.drawable.ic_clock_unfilled)
-        binding.navStats.setImageResource(if (tab == BottomTab.STATS) R.drawable.ic_stats_filled else R.drawable.ic_stats_unfilled)
-        binding.navSettings.setImageResource(if (tab == BottomTab.SETTINGS) R.drawable.ic_settings_filled else R.drawable.ic_settings_unfilled)
+        binding.searchView.setQuery("", false)
+        binding.searchView.clearFocus()
+        binding.searchView.visibility = View.GONE
+        refreshList()
     }
 
     private fun scheduleAllProductNotifications() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             lifecycleScope.launch(Dispatchers.IO) {
-                val products = productViewModel.allProducts.value ?: (application as ProductApplication).repository.getAllProductsNow()
+                val products = productViewModel.allProducts.value
+                    ?: (application as ProductApplication).repository.getAllProductsNow()
                 NotificationScheduler.rescheduleAll(this@MainActivity, products)
             }
         }
@@ -347,6 +340,4 @@ class MainActivity : AppCompatActivity() {
             scheduleAllProductNotifications()
         }
     }
-
-    enum class BottomTab { HOME, CART, HISTORY, STATS, SETTINGS }
 }

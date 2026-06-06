@@ -36,7 +36,7 @@ class StatBrandAdapter(
         holder.txtCount.text = holder.itemView.context.getString(R.string.stats_brand_count, item.count)
         holder.progress.max = maxCount
         holder.progress.progress = item.count
-        holder.progress.progressTintList = ContextCompat.getColorStateList(holder.itemView.context, R.color.teal_700)
+        holder.progress.progressTintList = ContextCompat.getColorStateList(holder.itemView.context, R.color.grey_800)
     }
 
     override fun getItemCount(): Int = items.size

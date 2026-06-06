@@ -1,274 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootCoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorBackground"
+    android:background="?android:attr/colorBackground"
     android:fitsSystemWindows="true">
 
-    <!-- Top bar -->
     <LinearLayout
-        android:id="@+id/topBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp"
-        android:gravity="center_vertical"
-        android:background="@drawable/header_background"
-        android:elevation="2dp"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/btnSortBy"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/ic_sort"
-            android:contentDescription="Sort By"
-            android:tint="?attr/colorOnSurface" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sort By"
-            android:textColor="?attr/colorOnBackground"
-            android:textSize="15sp"
-            android:layout_marginStart="6dp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-
-        <ImageView
-            android:id="@+id/btnFavorite"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/ic_heart_unfilled"
-            android:contentDescription="Favorites"
-            android:layout_marginEnd="16dp"
-            android:tint="?attr/colorOnSurface" />
-
-        <ImageView
-            android:id="@+id/btnSearch"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/ic_search_unfilled"
-            android:contentDescription="Search"
-            android:tint="?attr/colorOnSurface" />
-    </LinearLayout>
-
-    <!-- Search bar -->
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/searchView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:queryHint="Search products..."
-        android:iconifiedByDefault="false"
-        android:visibility="gone"
-        android:background="@drawable/edit_text_background"
-        android:padding="8dp"
-        android:layout_below="@id/topBar" />
-
-    <!-- Recycler -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerProducts"
+        android:id="@+id/mainContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/searchView"
-        android:layout_above="@id/bottomNavWrapper"
-        android:clipToPadding="false"
-        android:paddingBottom="96dp"
-        android:visibility="gone" />
-
-    <!-- Empty State (generic, updated dynamically) -->
-    <LinearLayout
-        android:id="@+id/emptyStateContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/searchView"
-        android:layout_above="@id/bottomNavWrapper"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="20dp"
-        android:visibility="gone">
-
-        <ImageView
-            android:id="@+id/emptyStateImage"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            android:src="@drawable/ic_carton_scan"
-            android:contentDescription="Empty State Icon"
-            android:layout_marginBottom="12dp" />
-
-        <TextView
-            android:id="@+id/emptyStateTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Scan Your First Product"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnBackground" />
-
-        <TextView
-            android:id="@+id/emptyStateSubtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="To get started, scan a food item or enter the details manually."
-            android:textAlignment="center"
-            android:textSize="14sp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_marginTop="4dp"/>
-    </LinearLayout>
-
-    <!-- Circular Floating Add FAB -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btnAddProduct"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_alignParentEnd="true"
-        android:layout_above="@id/bottomNavWrapper"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="Add Product"
-        app:srcCompat="@drawable/ic_big_plus"
-        app:backgroundTint="@color/teal_200"
-        app:tint="@android:color/white"
-        app:useCompatPadding="false"
-        app:maxImageSize="48dp"
-    />
-
-
-
-
-
-
-
-    <!-- Bottom Navigation -->
-    <LinearLayout
-        android:id="@+id/bottomNavWrapper"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:background="?attr/colorBackground"
-        android:elevation="6dp">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?attr/colorOutline"/>
+        android:layout_above="@id/bottomNavInclude"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/bottomNav"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:weightSum="4"
-            android:paddingHorizontal="4dp"
-            android:paddingTop="4dp">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <!-- Home -->
             <LinearLayout
-                android:id="@+id/navHomeWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:id="@+id/topBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp">
 
-                <ImageView
-                    android:id="@+id/navHome"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_home_unfilled"
-                    android:contentDescription="Home"
-                    android:tint="?attr/colorOnSurface" />
+                <ImageButton
+                    android:id="@+id/btnSortBy"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/sort_by"
+                    android:padding="12dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_sort"
+                    app:tint="?attr/colorOnSurface" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Home"
-                    android:textSize="12sp"
-                    android:textColor="?attr/colorOnBackground"/>
+                    android:layout_marginStart="4dp"
+                    android:text="@string/sort_by"
+                    android:textAppearance="?attr/textAppearanceLabelLarge"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:id="@+id/btnFavorite"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/favorites_filter"
+                    android:padding="12dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_heart_unfilled"
+                    app:tint="?attr/colorOnSurface" />
+
+                <ImageButton
+                    android:id="@+id/btnSearch"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/search_products"
+                    android:padding="12dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_search_unfilled"
+                    app:tint="?attr/colorOnSurface" />
             </LinearLayout>
 
-            <!-- History -->
-            <LinearLayout
-                android:id="@+id/navHistoryWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <ImageView
-                    android:id="@+id/navHistory"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_clock_unfilled"
-                    android:contentDescription="History"
-                    android:tint="?attr/colorOnSurface" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="History"
-                    android:textSize="12sp"
-                    android:textColor="?attr/colorOnBackground"/>
-            </LinearLayout>
-
-            <!-- Stats -->
-            <LinearLayout
-                android:id="@+id/navStatsWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <ImageView
-                    android:id="@+id/navStats"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_stats_unfilled"
-                    android:contentDescription="@string/nav_stats_desc"
-                    android:tint="?attr/colorOnSurface" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/nav_stats"
-                    android:textSize="12sp"
-                    android:textColor="?attr/colorOnBackground"/>
-            </LinearLayout>
-
-            <!-- Settings -->
-            <LinearLayout
-                android:id="@+id/navSettingsWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <ImageView
-                    android:id="@+id/navSettings"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_settings_unfilled"
-                    android:contentDescription="Settings"
-                    android:tint="?attr/colorOnSurface" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Settings"
-                    android:textSize="12sp"
-                    android:textColor="?attr/colorOnBackground"/>
-            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/nav_separator" />
         </LinearLayout>
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_background"
+            android:iconifiedByDefault="false"
+            android:padding="8dp"
+            android:queryHint="@string/search_products_hint"
+            android:visibility="gone" />
+
+        <FrameLayout
+            android:id="@+id/contentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerProducts"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="4dp"
+                android:paddingBottom="80dp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/emptyStateContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/emptyStateImage"
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:contentDescription="@string/empty_state_icon"
+                    android:src="@drawable/ic_placeholder"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:id="@+id/emptyStateTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/empty_fridge_title"
+                    android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                    android:textColor="?attr/colorOnBackground" />
+
+                <TextView
+                    android:id="@+id/emptyStateSubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="@string/empty_fridge_subtitle"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+        </FrameLayout>
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnAddProduct"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@id/bottomNavInclude"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/add_product"
+        app:backgroundTint="?attr/colorPrimary"
+        app:maxImageSize="48dp"
+        app:srcCompat="@drawable/ic_big_plus"
+        app:tint="?attr/colorOnPrimary"
+        app:useCompatPadding="true"
+        app:strokeColor="?attr/colorSurface"
+        app:strokeWidth="2dp" />
+
+    <include
+        android:id="@+id/bottomNavInclude"
+        layout="@layout/include_bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>

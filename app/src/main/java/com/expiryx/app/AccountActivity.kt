@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.expiryx.app.databinding.ActivityAccountBinding
 
@@ -13,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class AccountActivity : AppCompatActivity() {
+class AccountActivity : ThemedAppCompatActivity() {
 
     private lateinit var binding: ActivityAccountBinding
 
@@ -41,10 +40,18 @@ class AccountActivity : AppCompatActivity() {
 
             if (Prefs.isSyncEnabled(this)) {
                 binding.txtSyncStatus.text = "Active"
-                binding.txtSyncStatus.setTextColor(getColor(android.R.color.holo_green_dark))
+                binding.txtSyncStatus.setTextColor(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.green)
+                )
             } else {
                 binding.txtSyncStatus.text = "Disabled"
-                binding.txtSyncStatus.setTextColor(getColor(android.R.color.darker_gray))
+                binding.txtSyncStatus.setTextColor(
+                    com.google.android.material.color.MaterialColors.getColor(
+                        this,
+                        com.google.android.material.R.attr.colorOnSurfaceVariant,
+                        R.color.gray
+                    )
+                )
             }
         } else {
             finish() // Should not happen if redirected from Settings while logged in
@@ -81,8 +88,10 @@ class AccountActivity : AppCompatActivity() {
                 .setMessage("Are you sure you want to sign out?")
                 .setPositiveButton("Sign Out") { _, _ ->
                     AccountManager.signOut(this) {
-                        val intent = Intent(this, LoginActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        val intent = Intent(this, LoginActivity::class.java).apply {
+                            putExtra("force_login", true)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        }
                         startActivity(intent)
                         finish()
                     }
@@ -131,6 +140,11 @@ class AccountActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     AccountManager.signOut(this@AccountActivity) {
                         Toast.makeText(this@AccountActivity, "Account and data wiped", Toast.LENGTH_LONG).show()
+                        val intent = Intent(this@AccountActivity, LoginActivity::class.java).apply {
+                            putExtra("force_login", true)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        }
+                        startActivity(intent)
                         finish()
                     }
                 }

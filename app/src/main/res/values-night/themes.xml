@@ -1,32 +1,76 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Dark theme -->
-    <style name="Theme.ExpiryX" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/teal_200</item>
-        <item name="colorOnPrimary">@color/black</item>
+    <style name="Theme.ExpiryX.Base" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorSurface">@color/dark_surface</item>
         <item name="colorOnSurface">@color/dark_on_surface</item>
-        <item name="colorBackground">@color/dark_background</item>
-        <item name="colorOnBackground">@color/dark_on_background</item>
+        <item name="android:colorBackground">@color/dark_background</item>
         <item name="colorSurfaceVariant">@color/dark_surface_variant</item>
         <item name="colorOnSurfaceVariant">@color/dark_on_surface_variant</item>
-
-        <!-- System bars for dark mode -->
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:windowIsTranslucent">false</item>
-
-        <!-- Insets -->
-        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:fitsSystemWindows">false</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ExpiryX.BottomSheetDialog</item>
+        <item name="expiryTextSafe">@color/expiry_text_safe_dark</item>
+        <item name="expiryTextUrgent">@color/expiry_text_urgent_dark</item>
+        <item name="expiryTextExpired">@color/expiry_text_expired_dark</item>
+        <item name="expiryTextUnknown">@color/expiry_text_unknown_dark</item>
     </style>
 
-    <style name="Theme.ExpiryX.Camera" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:statusBarColor">@android:color/black</item>
-        <item name="android:navigationBarColor">@android:color/black</item>
+    <style name="ThemeOverlay.ExpiryX.BottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+
+    <style name="Theme.ExpiryX" parent="Theme.ExpiryX.Aqua" />
+
+    <style name="Theme.ExpiryX.Aqua" parent="Theme.ExpiryX.Base">
+        <item name="colorPrimary">@color/teal_200</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimaryContainer">#1A3A36</item>
+        <item name="colorOnPrimaryContainer">@color/teal_200</item>
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorOnSecondary">@color/black</item>
+    </style>
+
+    <style name="Theme.ExpiryX.Coral" parent="Theme.ExpiryX.Base">
+        <item name="colorPrimary">@color/coral_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">#3E2723</item>
+        <item name="colorOnPrimaryContainer">#FFAB91</item>
+        <item name="colorSecondary">@color/coral_primary</item>
+        <item name="colorOnSecondary">@color/white</item>
+    </style>
+
+    <style name="Theme.ExpiryX.Sky" parent="Theme.ExpiryX.Base">
+        <item name="colorPrimary">@color/sky_primary</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimaryContainer">#0D3044</item>
+        <item name="colorOnPrimaryContainer">#81D4FA</item>
+        <item name="colorSecondary">@color/sky_primary</item>
+        <item name="colorOnSecondary">@color/black</item>
+    </style>
+
+    <style name="Theme.ExpiryX.Violet" parent="Theme.ExpiryX.Base">
+        <item name="colorPrimary">@color/violet_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">#311B33</item>
+        <item name="colorOnPrimaryContainer">#CE93D8</item>
+        <item name="colorSecondary">@color/violet_primary</item>
+        <item name="colorOnSecondary">@color/white</item>
+    </style>
+
+    <style name="Theme.ExpiryX.Camera" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/black</item>
         <item name="android:windowFullscreen">true</item>
     </style>
 
+    <style name="ThemeOverlay.ExpiryX.NumberPicker" parent="ThemeOverlay.Material3.Dark">
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
+        <item name="colorControlNormal">?attr/colorPrimary</item>
+    </style>
 </resources>

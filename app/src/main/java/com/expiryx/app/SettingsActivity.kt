@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : ThemedAppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
 
@@ -41,6 +41,7 @@ class SettingsActivity : AppCompatActivity() {
 
         // Setup dark mode toggle
         setupDarkModeToggle()
+        setupAccentThemePicker()
 
         // Setup Sync Toggle
         setupSyncToggle()
@@ -78,7 +79,23 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         setupBottomNav()
-        highlightCurrentTab()
+        refreshAccentSubtitle()
+    }
+
+    private fun refreshAccentSubtitle() {
+        binding.accentThemeSubtitle.text = getString(
+            R.string.accent_color_current,
+            ThemeManager.getAccentLabel(this)
+        )
+        AccentThemePicker.bindInlineSwatch(this, binding.accentSwatchPreview) {
+            recreate()
+        }
+    }
+
+    private fun setupAccentThemePicker() {
+        binding.accentThemeCard.setOnClickListener {
+            AccentThemePicker.show(this) { recreate() }
+        }
     }
 
     private fun setupAccountSection() {
@@ -121,21 +138,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNav() {
-        binding.navHomeWrapper.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-            overridePendingTransition(0, 0)
-            finish()
-        }
-        binding.navHistoryWrapper.setOnClickListener {
-            startActivity(Intent(this, HistoryActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-            overridePendingTransition(0, 0)
-            finish()
-        }
-        binding.navStatsWrapper.setOnClickListener {
-            startActivity(Intent(this, StatsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-            overridePendingTransition(0, 0)
-            finish()
-        }
+        BottomNavHelper.setup(this, binding.bottomNav.bottomNavigationView, R.id.nav_settings)
     }
 
     private fun setupDarkModeToggle() {
@@ -154,13 +157,6 @@ class SettingsActivity : AppCompatActivity() {
             Prefs.setSyncEnabled(this, isChecked)
             if (AccountManager.isLoggedIn()) AccountManager.startSync(this)
         }
-    }
-
-    private fun highlightCurrentTab() {
-        binding.navHome.setImageResource(R.drawable.ic_home_unfilled)
-        binding.navHistory.setImageResource(R.drawable.ic_clock_unfilled)
-        binding.navStats.setImageResource(R.drawable.ic_stats_unfilled)
-        binding.navSettings.setImageResource(R.drawable.ic_settings_filled)
     }
 
     private fun exportDataToCsv() {

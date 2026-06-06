@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorBackground"
+    android:background="?android:attr/colorBackground"
     android:fitsSystemWindows="true">
 
     <!-- Top bar -->
@@ -29,12 +29,18 @@
             android:textColor="?attr/colorOnBackground"/>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/nav_separator"
+        android:layout_below="@id/topBar" />
+
     <!-- Scrollable settings content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/topBar"
-        android:layout_above="@id/bottomNavWrapper"
+        android:layout_above="@id/bottomNav"
         android:scrollbars="none">
 
         <LinearLayout
@@ -65,8 +71,7 @@
 
                     <LinearLayout
                         android:id="@+id/account_icon_container"
-                        style="@style/SettingsIconContainer"
-                        android:backgroundTint="@color/teal_200">
+                        style="@style/SettingsIconContainer">
 
                         <ImageView
                             android:id="@+id/user_profile_image"
@@ -118,12 +123,12 @@
                     <LinearLayout
                         android:id="@+id/sync_icon_container"
                         style="@style/SettingsIconContainer"
-                        android:backgroundTint="@color/teal_200">
+                        android:backgroundTint="?attr/colorPrimary">
 
                         <ImageView
                             style="@style/SettingsIcon"
                             android:src="@drawable/ic_sync"
-                            app:tint="?attr/colorOnSurface"/>
+                            app:tint="@color/white"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -166,12 +171,12 @@
                     <LinearLayout
                         android:id="@+id/notifications_icon_container"
                         style="@style/SettingsIconContainer"
-                        android:backgroundTint="@color/teal_200">
+                        android:backgroundTint="?attr/colorPrimary">
 
                         <ImageView
                             style="@style/SettingsIcon"
                             android:src="@drawable/ic_notifications"
-                            app:tint="?attr/colorOnSurface"/>
+                            app:tint="@color/white"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -181,6 +186,54 @@
 
                         <TextView style="@style/SettingsTitle" android:text="Notifications" />
                         <TextView style="@style/SettingsSubtitle" android:text="Manage reminder time &amp; intervals" />
+                    </LinearLayout>
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Accent theme -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/accent_theme_card"
+                style="@style/SettingsCard"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                app:cardBackgroundColor="?attr/colorSurface">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:id="@+id/accent_theme_icon_container"
+                        style="@style/SettingsIconContainer"
+                        android:backgroundTint="?attr/colorPrimary">
+
+                        <ImageView
+                            style="@style/SettingsIcon"
+                            android:src="@drawable/ic_palette"
+                            app:tint="?attr/colorOnPrimary" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        style="@style/SettingsTextLayout"
+                        android:layout_toEndOf="@id/accent_theme_icon_container"
+                        android:layout_alignParentEnd="true">
+
+                        <TextView
+                            style="@style/SettingsTitle"
+                            android:text="@string/accent_color" />
+                        <TextView
+                            android:id="@+id/accentThemeSubtitle"
+                            style="@style/SettingsSubtitle"
+                            android:text="@string/accent_color_subtitle" />
+
+                        <LinearLayout
+                            android:id="@+id/accentSwatchPreview"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal" />
                     </LinearLayout>
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -201,12 +254,12 @@
                     <LinearLayout
                         android:id="@+id/dark_mode_icon_container"
                         style="@style/SettingsIconContainer"
-                        android:backgroundTint="@color/teal_200">
+                        android:backgroundTint="?attr/colorPrimary">
 
                         <ImageView
                             style="@style/SettingsIcon"
                             android:src="@drawable/ic_dark_mode"
-                            app:tint="?attr/colorOnSurface"/>
+                            app:tint="@color/white"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -249,12 +302,12 @@
                     <LinearLayout
                         android:id="@+id/export_icon_container"
                         style="@style/SettingsIconContainer"
-                        android:backgroundTint="@color/teal_200">
+                        android:backgroundTint="?attr/colorPrimary">
 
                         <ImageView
                             style="@style/SettingsIcon"
                             android:src="@drawable/ic_export"
-                            app:tint="?attr/colorOnSurface"/>
+                            app:tint="@color/white"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -284,12 +337,12 @@
                     <LinearLayout
                         android:id="@+id/import_icon_container"
                         style="@style/SettingsIconContainer"
-                        android:backgroundTint="@color/teal_200">
+                        android:backgroundTint="?attr/colorPrimary">
 
                         <ImageView
                             style="@style/SettingsIcon"
                             android:src="@drawable/ic_sync"
-                            app:tint="?attr/colorOnSurface"
+                            app:tint="@color/white"
                             android:rotation="180"/>
                     </LinearLayout>
 
@@ -322,12 +375,12 @@
                     <LinearLayout
                         android:id="@+id/delete_data_icon_container"
                         style="@style/SettingsIconContainer"
-                        android:backgroundTint="@color/teal_200">
+                        android:backgroundTint="?attr/colorPrimary">
 
                         <ImageView
                             style="@style/SettingsIcon"
                             android:src="@drawable/ic_delete"
-                            app:tint="?attr/colorOnSurface"/>
+                            app:tint="@color/white"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -345,7 +398,8 @@
             <TextView
                 style="@style/SettingsHeader"
                 android:paddingTop="8dp"
-                android:text="ABOUT" />
+                android:text="ABOUT"
+                android:textColor="@color/gold" />
 
             <!-- Donate -->
             <com.google.android.material.card.MaterialCardView
@@ -370,7 +424,7 @@
                         <ImageView
                             style="@style/SettingsIcon"
                             android:src="@drawable/ic_fav_filled"
-                            app:tint="@android:color/white"/>
+                            app:tint="@color/white" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -408,7 +462,7 @@
                         <ImageView
                             style="@style/SettingsIcon"
                             android:src="@drawable/ic_star"
-                            app:tint="@android:color/white"/>
+                            app:tint="@color/white" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -435,126 +489,10 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom nav -->
-    <LinearLayout
-        android:id="@+id/bottomNavWrapper"
+    <include
+        android:id="@+id/bottomNav"
+        layout="@layout/include_bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:background="?attr/colorBackground"
-        android:elevation="6dp">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?attr/colorOutline"/>
-
-        <LinearLayout
-            android:id="@+id/bottomNav"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:weightSum="4"
-            android:paddingHorizontal="4dp"
-            android:paddingTop="4dp">
-
-            <LinearLayout
-                android:id="@+id/navHomeWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <ImageView
-                    android:id="@+id/navHome"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_home_unfilled"
-                    app:tint="?attr/colorOnSurface"
-                    android:contentDescription="Home"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Home"
-                    android:textSize="12sp"
-                    android:textColor="?attr/colorOnBackground"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/navHistoryWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <ImageView
-                    android:id="@+id/navHistory"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_clock_unfilled"
-                    app:tint="?attr/colorOnSurface"
-                    android:contentDescription="History"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="History"
-                    android:textSize="12sp"
-                    android:textColor="?attr/colorOnBackground"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/navStatsWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <ImageView
-                    android:id="@+id/navStats"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_stats_unfilled"
-                    app:tint="?attr/colorOnSurface"
-                    android:contentDescription="@string/nav_stats_desc"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/nav_stats"
-                    android:textSize="12sp"
-                    android:textColor="?attr/colorOnBackground"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/navSettingsWrapper"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <ImageView
-                    android:id="@+id/navSettings"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_settings_unfilled"
-                    app:tint="?attr/colorOnSurface"
-                    android:contentDescription="Settings"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Settings"
-                    android:textSize="12sp"
-                    android:textColor="?attr/colorOnBackground"/>
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_alignParentBottom="true" />
 </RelativeLayout>

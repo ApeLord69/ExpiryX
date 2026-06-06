@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Example widget style -->
     <style name="Widget.ExpiryX.Button" parent="Widget.Material3.Button">
-        <item name="android:backgroundTint">@color/teal_200</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
     </style>
 
     <style name="Widget.ExpiryX.EditText" parent="Widget.Material3.TextInputEditText.FilledBox">
-        <item name="android:textColor">@color/dark_on_surface</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
     <style name="SettingsHeader">
@@ -17,7 +16,7 @@
         <item name="android:layout_marginStart">24dp</item>
         <item name="android:layout_marginTop">12dp</item>
         <item name="android:layout_marginBottom">6dp</item>
-        <item name="android:textColor">@color/your_teal_color</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">true</item>
@@ -32,12 +31,13 @@
         <item name="cardElevation">0dp</item>
         <item name="strokeColor">@color/settings_card_border</item>
         <item name="strokeWidth">1dp</item>
-        <item name="cardBackgroundColor">@color/dark_card_background</item>
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
     </style>
 
     <style name="SettingsIcon">
         <item name="android:layout_width">24dp</item>
         <item name="android:layout_height">24dp</item>
+        <item name="android:tint">?attr/colorOnPrimary</item>
     </style>
 
     <style name="SettingsIconContainer">
@@ -46,6 +46,7 @@
         <item name="android:layout_centerVertical">true</item>
         <item name="android:layout_marginEnd">16dp</item>
         <item name="android:background">@drawable/settings_icon_background</item>
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
         <item name="android:gravity">center</item>
     </style>
 
@@ -59,14 +60,14 @@
     <style name="SettingsTitle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/dark_on_surface</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
         <item name="android:textSize">16sp</item>
     </style>
 
     <style name="SettingsSubtitle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/dark_on_surface_variant</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
         <item name="android:textSize">14sp</item>
     </style>
 </resources>
