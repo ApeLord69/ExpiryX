@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bottom_nav_icon_size">22dp</dimen>
+    <dimen name="date_wheel_picker_height">160dp</dimen>
+    <dimen name="date_wheel_selection_band_height">52dp</dimen>
+</resources>

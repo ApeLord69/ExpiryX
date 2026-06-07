@@ -1,0 +1,111 @@
+package com.expiryx.app
+
+import android.content.Context
+import android.graphics.drawable.GradientDrawable
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.card.MaterialCardView
+
+object AccentThemePicker {
+
+    fun show(context: Context, onAccentSelected: () -> Unit) {
+        val dialog = BottomSheetDialog(context)
+        val content = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_accent_picker, null)
+        dialog.setContentView(content)
+
+        val rowTop = content.findViewById<LinearLayout>(R.id.accentPickerRowTop)
+        val rowBottom = content.findViewById<LinearLayout>(R.id.accentPickerRowBottom)
+        val currentAccent = ThemeManager.getAccentTheme(context)
+
+        ThemeManager.accentOptions.forEachIndexed { index, option ->
+            val row = if (index < 2) rowTop else rowBottom
+            val itemView = LayoutInflater.from(context).inflate(R.layout.item_accent_option, row, false)
+            bindOption(context, itemView, option, option.id == currentAccent)
+            itemView.setOnClickListener {
+                if (option.id != ThemeManager.getAccentTheme(context)) {
+                    ThemeManager.setAccentTheme(context, option.id)
+                    onAccentSelected()
+                }
+                dialog.dismiss()
+            }
+            row.addView(itemView)
+        }
+
+        dialog.show()
+    }
+
+    fun bindInlineSwatch(
+        context: Context,
+        container: LinearLayout,
+        onAccentSelected: () -> Unit,
+    ) {
+        container.removeAllViews()
+        val currentAccent = ThemeManager.getAccentTheme(context)
+        val size = (36 * context.resources.displayMetrics.density).toInt()
+        val margin = (6 * context.resources.displayMetrics.density).toInt()
+
+        ThemeManager.accentOptions.forEach { option ->
+            val selected = option.id == currentAccent
+            val ringSize = size + (8 * context.resources.displayMetrics.density).toInt()
+            val wrapper = android.widget.FrameLayout(context).apply {
+                layoutParams = LinearLayout.LayoutParams(ringSize, ringSize).apply {
+                    marginEnd = margin
+                }
+            }
+            val swatch = View(context).apply {
+                layoutParams = android.widget.FrameLayout.LayoutParams(size, size).apply {
+                    gravity = android.view.Gravity.CENTER
+                }
+                background = circleDrawable(context, option.previewColorRes)
+                contentDescription = option.label
+            }
+            if (selected) {
+                wrapper.foreground = ContextCompat.getDrawable(context, R.drawable.accent_swatch_selected_ring)
+            }
+            wrapper.addView(swatch)
+            wrapper.setOnClickListener {
+                if (option.id != ThemeManager.getAccentTheme(context)) {
+                    ThemeManager.setAccentTheme(context, option.id)
+                    onAccentSelected()
+                }
+            }
+            container.addView(wrapper)
+        }
+    }
+
+    private fun bindOption(
+        context: Context,
+        itemView: View,
+        option: ThemeManager.AccentOption,
+        selected: Boolean,
+    ) {
+        val swatch = itemView.findViewById<View>(R.id.accentSwatchColor)
+        val ring = itemView.findViewById<View>(R.id.accentSwatchRing)
+        val check = itemView.findViewById<ImageView>(R.id.accentSwatchCheck)
+        val label = itemView.findViewById<TextView>(R.id.accentOptionLabel)
+        val card = itemView.findViewById<MaterialCardView>(R.id.accentOptionCard)
+
+        swatch.background = circleDrawable(context, option.previewColorRes)
+        label.text = option.label
+
+        ring.visibility = if (selected) View.VISIBLE else View.GONE
+        check.visibility = if (selected) View.VISIBLE else View.GONE
+
+        if (selected) {
+            card.strokeColor = ContextCompat.getColor(context, option.previewColorRes)
+            card.strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
+        }
+    }
+
+    private fun circleDrawable(context: Context, colorRes: Int): GradientDrawable {
+        return GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(ContextCompat.getColor(context, colorRes))
+        }
+    }
+}
