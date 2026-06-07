@@ -8,7 +8,7 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.expiryx.app.databinding.ActivityHistoryBinding
@@ -43,7 +43,7 @@ class HistoryActivity : ThemedAppCompatActivity() {
         adapter = HistoryAdapter(
             onItemClick = { h -> HistoryDetailBottomSheet.newInstance(h).show(supportFragmentManager, "HistoryDetail") },
             onItemLongPress = { h ->
-                AlertDialog.Builder(this)
+                MaterialAlertDialogBuilder(this)
                     .setTitle(getString(R.string.history_permanently_delete_title))
                     .setMessage(getString(R.string.history_permanently_delete_msg, h.productName))
                     .setPositiveButton(getString(R.string.delete)) { _, _ -> viewModel.permanentlyDelete(h) }

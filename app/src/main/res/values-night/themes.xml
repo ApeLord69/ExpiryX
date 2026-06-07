@@ -1,11 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.ExpiryX.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/teal_200</item>
         <item name="colorSurface">@color/dark_surface</item>
         <item name="colorOnSurface">@color/dark_on_surface</item>
         <item name="android:colorBackground">@color/dark_background</item>
         <item name="colorSurfaceVariant">@color/dark_surface_variant</item>
         <item name="colorOnSurfaceVariant">@color/dark_on_surface_variant</item>
+        <item name="colorOnBackground">@color/dark_on_background</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
@@ -13,6 +15,8 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:fitsSystemWindows">false</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ExpiryX.BottomSheetDialog</item>
+        <item name="alertDialogTheme">@style/Theme.Material3.DayNight.Dialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Material3.MaterialAlertDialog</item>
         <item name="expiryTextSafe">@color/expiry_text_safe_dark</item>
         <item name="expiryTextUrgent">@color/expiry_text_urgent_dark</item>
         <item name="expiryTextExpired">@color/expiry_text_expired_dark</item>
@@ -71,6 +75,6 @@
     <style name="ThemeOverlay.ExpiryX.NumberPicker" parent="ThemeOverlay.Material3.Dark">
         <item name="android:textColorPrimary">?attr/colorOnSurface</item>
         <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
-        <item name="colorControlNormal">?attr/colorPrimary</item>
+        <item name="colorControlNormal">@android:color/transparent</item>
     </style>
 </resources>

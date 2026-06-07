@@ -108,11 +108,12 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
     }
 
     private fun setupToolbar() {
+        binding.toolbarManualEntry.title = if (editingProduct != null) getString(R.string.edit) else getString(R.string.add_product)
         binding.toolbarManualEntry.setNavigationOnClickListener { finish() }
         binding.toolbarManualEntry.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_redo -> {
-                    androidx.appcompat.app.AlertDialog.Builder(this)
+                    com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                         .setTitle("Reset Form")
                         .setMessage("Are you sure you want to clear all fields?")
                         .setPositiveButton("Reset") { _, _ -> resetForm() }

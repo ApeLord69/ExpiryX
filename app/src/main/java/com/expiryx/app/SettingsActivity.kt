@@ -10,7 +10,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -52,7 +52,7 @@ class SettingsActivity : ThemedAppCompatActivity() {
         }
 
         binding.exportCard.setOnClickListener {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("Export Data")
                 .setMessage("Do you want to export your data to the Downloads folder as a CSV file?")
                 .setPositiveButton("Yes") { _, _ -> exportDataToCsv() }
@@ -61,7 +61,7 @@ class SettingsActivity : ThemedAppCompatActivity() {
         }
 
         binding.importCard.setOnClickListener {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("Import Data")
                 .setMessage("Select a CSV file to restore your products and history. This will merge with your current data.")
                 .setPositiveButton("Select File") { _, _ -> importLauncher.launch(arrayOf("text/*", "application/octet-stream", "text/csv")) }
@@ -70,7 +70,7 @@ class SettingsActivity : ThemedAppCompatActivity() {
         }
 
         binding.deleteDataCard.setOnClickListener {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("Reset Local Data")
                 .setMessage("This will permanently erase all offline products, history, and statistics stored on this device. Cloud data remains safe. Continue?")
                 .setPositiveButton("Reset") { _, _ -> deleteAllData() }

@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.bumptech.glide.Glide
 import com.expiryx.app.databinding.BottomsheetHistoryDetailBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -124,7 +124,7 @@ class HistoryDetailBottomSheet : BottomSheetDialogFragment() {
         // Permanent delete
         binding.btnSecondary.text = getString(R.string.history_permanently_delete_title)
         binding.btnSecondary.setOnClickListener {
-            AlertDialog.Builder(requireContext())
+            MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.history_permanently_delete_title))
                 .setMessage(getString(R.string.history_permanently_delete_msg, history.productName))
                 .setPositiveButton(getString(R.string.delete)) { _, _ ->

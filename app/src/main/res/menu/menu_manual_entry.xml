@@ -8,7 +8,6 @@
         android:id="@+id/action_redo"
         android:icon="@drawable/ic_redo"
         android:title="@string/redo_product"
-        app:iconTint="?attr/colorOnSurface"
         app:showAsAction="always" />
 
 </menu>

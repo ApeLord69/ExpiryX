@@ -2,11 +2,13 @@
 
     <!-- Shared base: surfaces, edge-to-edge -->
     <style name="Theme.ExpiryX.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/teal_200</item>
         <item name="colorSurface">@color/white</item>
         <item name="colorOnSurface">@color/black</item>
         <item name="android:colorBackground">@color/white</item>
         <item name="colorSurfaceVariant">@color/grey_100</item>
         <item name="colorOnSurfaceVariant">@color/grey_700</item>
+        <item name="colorOnBackground">@color/black</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -14,6 +16,8 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:fitsSystemWindows">false</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ExpiryX.BottomSheetDialog</item>
+        <item name="alertDialogTheme">@style/Theme.Material3.DayNight.Dialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Material3.MaterialAlertDialog</item>
         <item name="expiryTextSafe">@color/expiry_text_safe_light</item>
         <item name="expiryTextUrgent">@color/expiry_text_urgent_light</item>
         <item name="expiryTextExpired">@color/expiry_text_expired_light</item>
@@ -73,6 +77,6 @@
     <style name="ThemeOverlay.ExpiryX.NumberPicker" parent="ThemeOverlay.Material3.Light">
         <item name="android:textColorPrimary">?attr/colorOnSurface</item>
         <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
-        <item name="colorControlNormal">?attr/colorPrimary</item>
+        <item name="colorControlNormal">@android:color/transparent</item>
     </style>
 </resources>

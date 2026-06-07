@@ -1,6 +1,6 @@
 package com.expiryx.app
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
@@ -128,7 +128,7 @@ class NotificationSettingsActivity : ThemedAppCompatActivity() {
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogView)
             .setPositiveButton("Done", null)
             .create()
@@ -163,7 +163,7 @@ class NotificationSettingsActivity : ThemedAppCompatActivity() {
             btnToggle.setImageResource(if (isWheel) R.drawable.ic_wheel else R.drawable.ic_keyboard)
         }
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setView(dialogView)
             .setPositiveButton("Add") { _, _ ->
                 val newVal = if (picker.isVisible) picker.value.toString() else editNumber.text.toString()
@@ -233,7 +233,7 @@ class NotificationSettingsActivity : ThemedAppCompatActivity() {
             btnToggle.setImageResource(if (isWheel) R.drawable.ic_wheel else R.drawable.ic_keyboard)
         }
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setView(dialogView)
             .setPositiveButton("Set") { _, _ ->
                 val finalVal = if (picker.isVisible) picker.value else editNumber.text.toString().toIntOrNull() ?: 0

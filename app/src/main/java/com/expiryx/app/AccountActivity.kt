@@ -3,7 +3,7 @@ package com.expiryx.app
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.bumptech.glide.Glide
 import com.expiryx.app.databinding.ActivityAccountBinding
 
@@ -83,7 +83,7 @@ class AccountActivity : ThemedAppCompatActivity() {
         }
 
         binding.btnSignOut.setOnClickListener {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("Sign Out")
                 .setMessage("Are you sure you want to sign out?")
                 .setPositiveButton("Sign Out") { _, _ ->
@@ -106,7 +106,7 @@ class AccountActivity : ThemedAppCompatActivity() {
         }
 
         binding.btnDeleteCloudData.setOnClickListener {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("Clear Cloud Data")
                 .setMessage("This will permanently remove all your products and history from the cloud. Local data will remain. Continue?")
                 .setPositiveButton("Delete", { _, _ ->
@@ -120,7 +120,7 @@ class AccountActivity : ThemedAppCompatActivity() {
         }
 
         binding.btnDeleteAccount.setOnClickListener {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Account & Data")
                 .setMessage("DANGER: This will permanently erase all your data from both this device and the cloud, including history and statistics. This cannot be undone. Are you sure?")
                 .setPositiveButton("Erase Everything") { _, _ ->

@@ -287,7 +287,7 @@ class MainActivity : ThemedAppCompatActivity() {
     }
 
     fun deleteProductWithConfirmation(product: Product) {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.dialog_delete_title))
             .setMessage(getString(R.string.dialog_delete_message, product.name))
             .setPositiveButton(getString(R.string.delete)) { _, _ ->
