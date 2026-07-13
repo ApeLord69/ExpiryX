@@ -25,7 +25,7 @@ object NotificationScheduler {
      * Schedules all enabled reminders for a specific product.
      */
     fun scheduleForProduct(context: Context, product: Product) {
-        if (!Prefs.isNotificationsEnabled(context)) {
+        if (!Prefs.isNotificationsEnabled(context) || product.isSnoozed) {
             cancelForProduct(context, product)
             return
         }

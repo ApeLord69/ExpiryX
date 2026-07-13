@@ -84,6 +84,16 @@ class ProductDetailBottomSheet : BottomSheetDialogFragment() {
         } else {
             binding.txtDetailDateModified.visibility = View.GONE
         }
+
+        updateSnoozeButton(p.isSnoozed)
+    }
+
+    private fun updateSnoozeButton(isSnoozed: Boolean) {
+        binding.btnSnooze.apply {
+            text = if (isSnoozed) "Snoozed" else "Snooze"
+            alpha = if (isSnoozed) 0.6f else 1.0f
+            setIconResource(if (isSnoozed) R.drawable.ic_notification else R.drawable.ic_notification_off)
+        }
     }
 
     private fun setupListeners(p: Product) {
@@ -99,6 +109,20 @@ class ProductDetailBottomSheet : BottomSheetDialogFragment() {
         binding.btnEdit.setOnClickListener {
             hostActivity?.editProduct(p)
             dismiss()
+        }
+        binding.btnSnooze.setOnClickListener {
+            val updatedProduct = p.copy(isSnoozed = !p.isSnoozed)
+            viewModel.update(updatedProduct)
+            updateSnoozeButton(updatedProduct.isSnoozed)
+            val msg = if (updatedProduct.isSnoozed) "Notifications muted for this item" else "Notifications enabled"
+            android.widget.Toast.makeText(requireContext(), msg, android.widget.Toast.LENGTH_SHORT).show()
+            // NotificationScheduler is handled in ViewModel/Repository update usually, 
+            // but we ensure it matches the new state.
+            if (updatedProduct.isSnoozed) {
+                NotificationScheduler.cancelForProduct(requireContext(), updatedProduct)
+            } else {
+                NotificationScheduler.scheduleForProduct(requireContext(), updatedProduct)
+            }
         }
     }
 

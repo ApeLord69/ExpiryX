@@ -40,15 +40,30 @@ class StatsActivity : ThemedAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowInsetsHelper.enableEdgeToEdge(this)
         binding = ActivityStatsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupWindowInsets()
         setupRecyclerViews()
         setupTimeRangeChips()
         setupBottomNav()
         setupAccountCard()
         setupCharts()
         observeStats()
+    }
+
+    private fun setupWindowInsets() {
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            binding.topBar.setPadding(
+                binding.topBar.paddingLeft,
+                systemBars.top,
+                binding.topBar.paddingRight,
+                binding.topBar.paddingBottom
+            )
+            insets
+        }
     }
 
     private fun setupRecyclerViews() {

@@ -22,6 +22,7 @@ data class Product(
     val imageUri: String? = null,
     val isFavorite: Boolean = false,
     val barcode: String? = null, // Barcode from scanning or image upload
+    val isSnoozed: Boolean = false, // Whether notifications for this item are muted
     val dateAdded: Long = System.currentTimeMillis(), // When product was first created
     val dateModified: Long? = null, // When product was last updated (null for new products)
 ) : Parcelable

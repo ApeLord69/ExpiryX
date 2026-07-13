@@ -265,18 +265,41 @@
                     <LinearLayout
                         style="@style/SettingsTextLayout"
                         android:layout_toEndOf="@id/dark_mode_icon_container"
-                        android:layout_toStartOf="@+id/dark_mode_switch">
+                        android:layout_alignParentEnd="true">
 
-                        <TextView style="@style/SettingsTitle" android:text="Dark Mode" />
-                        <TextView style="@style/SettingsSubtitle" android:text="Switch between light &amp; dark" />
+                        <TextView style="@style/SettingsTitle" android:text="Theming" />
+                        <TextView
+                            android:id="@+id/txtThemeStatus"
+                            style="@style/SettingsSubtitle"
+                            android:text="System Default" />
+
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/toggleGroupTheme"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+                            <Button
+                                android:id="@+id/btnThemeSystem"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="System" />
+                            <Button
+                                android:id="@+id/btnThemeLight"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Light" />
+                            <Button
+                                android:id="@+id/btnThemeDark"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Dark" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
                     </LinearLayout>
-
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/dark_mode_switch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"/>
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 

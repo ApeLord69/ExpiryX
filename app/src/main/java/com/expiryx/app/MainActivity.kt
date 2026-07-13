@@ -34,6 +34,7 @@ class MainActivity : ThemedAppCompatActivity() {
     }
 
     private var allProducts: List<Product> = emptyList()
+    private var pendingActions = mutableSetOf<String>() // Set of UUIDs being "undone"
     private var showFavoritesOnly = false
 
     enum class SortMode {
@@ -127,10 +128,34 @@ class MainActivity : ThemedAppCompatActivity() {
         adapter = ProductAdapter(
             onFavoriteClick = { p -> productViewModel.update(p.copy(isFavorite = !p.isFavorite)) },
             onItemClick = { p -> ProductDetailBottomSheet.newInstance(p).show(supportFragmentManager, "Detail") },
-            onDeleteLongPress = { deleteProductWithConfirmation(it) },
+            onDeleteLongPress = { p -> deleteProductWithConfirmation(p) },
         )
         binding.recyclerProducts.layoutManager = LinearLayoutManager(this)
         binding.recyclerProducts.adapter = adapter
+
+        val swipeHandler = SwipeActionCallback(
+            context = this,
+            leftLabel = "Mark Used",
+            leftColor = android.graphics.Color.parseColor("#4CAF50"),
+            leftIconRes = R.drawable.ic_check,
+            rightLabel = "Edit",
+            rightColor = android.graphics.Color.parseColor("#2196F3"),
+            rightIconRes = R.drawable.ic_palette, // Using palette for edit icon
+            onSwipeLeft = { position ->
+                val item = adapter.currentList[position]
+                if (item is ProductListItem.ProductItem) {
+                    markProductAsUsed(item.product)
+                }
+            },
+            onSwipeRight = { position ->
+                val item = adapter.currentList[position]
+                if (item is ProductListItem.ProductItem) {
+                    editProduct(item.product)
+                    adapter.notifyItemChanged(position)
+                }
+            }
+        )
+        androidx.recyclerview.widget.ItemTouchHelper(swipeHandler).attachToRecyclerView(binding.recyclerProducts)
     }
 
     private fun setupBottomNavigation() {
@@ -154,13 +179,18 @@ class MainActivity : ThemedAppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnAddProduct.setOnClickListener { showAddProductOptions() }
-        binding.btnSortBy.setOnClickListener { showSortOptions(it) }
+        binding.btnSortByCard.setOnClickListener { showSortOptions(it) }
 
-        binding.btnFavorite.setOnClickListener {
+        binding.btnNotificationCenter.setOnClickListener {
+            NotificationCenterBottomSheet().show(supportFragmentManager, "NotificationCenter")
+        }
+
+        binding.btnFavoriteCard.setOnClickListener {
             showFavoritesOnly = !showFavoritesOnly
-            binding.btnFavorite.setImageResource(
+            binding.imgFavoriteToggle.setImageResource(
                 if (showFavoritesOnly) R.drawable.ic_heart_filled else R.drawable.ic_heart_unfilled
             )
+            binding.textFavoriteToggle.text = if (showFavoritesOnly) "Favourites Only" else "Show Favourites"
             refreshList()
         }
 
@@ -214,6 +244,7 @@ class MainActivity : ThemedAppCompatActivity() {
             add(0, 11, 0, getString(R.string.sort_added_new))
         }
         popup.setOnMenuItemClickListener { item ->
+            binding.textCurrentSort.text = item.title
             sortMode = when (item.itemId) {
                 1 -> SortMode.EXPIRY_ASC
                 2 -> SortMode.EXPIRY_DESC
@@ -235,7 +266,7 @@ class MainActivity : ThemedAppCompatActivity() {
     }
 
     private fun refreshList() {
-        var list = allProducts
+        var list = allProducts.filter { !pendingActions.contains(it.uuid) }
         if (showFavoritesOnly) list = list.filter { it.isFavorite }
 
         list = when (sortMode) {
@@ -291,19 +322,49 @@ class MainActivity : ThemedAppCompatActivity() {
             .setTitle(getString(R.string.dialog_delete_title))
             .setMessage(getString(R.string.dialog_delete_message, product.name))
             .setPositiveButton(getString(R.string.delete)) { _, _ ->
-                productViewModel.delete(product)
-                NotificationScheduler.cancelForProduct(this, product)
+                performUndoableAction(product, "Product deleted") {
+                    productViewModel.delete(product)
+                    NotificationScheduler.cancelForProduct(this@MainActivity, product)
+                }
             }
             .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
     fun markProductAsUsed(product: Product) {
-        lifecycleScope.launch {
+        performUndoableAction(product, "${product.name} marked as used") {
             productViewModel.markAsUsed(product)
             NotificationScheduler.cancelForProduct(this@MainActivity, product)
-            Toast.makeText(this@MainActivity, getString(R.string.toast_product_used, product.name), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun performUndoableAction(product: Product, message: String, onCommit: () -> Unit) {
+        pendingActions.add(product.uuid)
+        refreshList()
+
+        val snackbar = com.google.android.material.snackbar.Snackbar.make(
+            binding.rootCoordinator,
+            message,
+            5000
+        )
+        
+        var undone = false
+        snackbar.setAction("UNDO") {
+            undone = true
+            pendingActions.remove(product.uuid)
+            refreshList()
+        }
+        
+        snackbar.addCallback(object : com.google.android.material.snackbar.BaseTransientBottomBar.BaseCallback<com.google.android.material.snackbar.Snackbar>() {
+            override fun onDismissed(transientBottomBar: com.google.android.material.snackbar.Snackbar?, event: Int) {
+                if (!undone) {
+                    pendingActions.remove(product.uuid)
+                    onCommit()
+                }
+            }
+        })
+        
+        snackbar.show()
     }
 
     private fun openSearch() {

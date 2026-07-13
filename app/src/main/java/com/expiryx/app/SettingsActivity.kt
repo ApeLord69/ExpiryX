@@ -31,9 +31,11 @@ class SettingsActivity : ThemedAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowInsetsHelper.enableEdgeToEdge(this)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupWindowInsets()
         binding.appVersionText.text = getString(R.string.version_format, getString(R.string.app_version_name))
 
         // Setup Account Section
@@ -80,6 +82,19 @@ class SettingsActivity : ThemedAppCompatActivity() {
 
         setupBottomNav()
         refreshAccentSubtitle()
+    }
+
+    private fun setupWindowInsets() {
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            binding.topBar.setPadding(
+                binding.topBar.paddingLeft,
+                systemBars.top,
+                binding.topBar.paddingRight,
+                binding.topBar.paddingBottom
+            )
+            insets
+        }
     }
 
     private fun refreshAccentSubtitle() {
@@ -142,11 +157,33 @@ class SettingsActivity : ThemedAppCompatActivity() {
     }
 
     private fun setupDarkModeToggle() {
-        binding.darkModeSwitch.isChecked = ThemeManager.isDarkMode(this)
-        binding.darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            val themeMode = if (isChecked) ThemeManager.THEME_DARK else ThemeManager.THEME_LIGHT
-            ThemeManager.setThemeMode(this, themeMode)
-            recreate()
+        val currentMode = ThemeManager.getThemeMode(this)
+        val toggle = binding.toggleGroupTheme
+        
+        when (currentMode) {
+            ThemeManager.THEME_SYSTEM -> toggle.check(R.id.btnThemeSystem)
+            ThemeManager.THEME_LIGHT -> toggle.check(R.id.btnThemeLight)
+            ThemeManager.THEME_DARK -> toggle.check(R.id.btnThemeDark)
+        }
+
+        binding.txtThemeStatus.text = when (currentMode) {
+            ThemeManager.THEME_SYSTEM -> "Follow System Theme"
+            ThemeManager.THEME_LIGHT -> "Light Mode"
+            ThemeManager.THEME_DARK -> "Dark Mode"
+            else -> "Follow System Theme"
+        }
+
+        toggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                val newMode = when (checkedId) {
+                    R.id.btnThemeSystem -> ThemeManager.THEME_SYSTEM
+                    R.id.btnThemeLight -> ThemeManager.THEME_LIGHT
+                    R.id.btnThemeDark -> ThemeManager.THEME_DARK
+                    else -> ThemeManager.THEME_SYSTEM
+                }
+                ThemeManager.setThemeMode(this, newMode)
+                recreate()
+            }
         }
     }
 
@@ -167,12 +204,12 @@ class SettingsActivity : ThemedAppCompatActivity() {
 
             val escape = { text: String? -> text?.replace("\"", "\"\"") ?: "" }
             val csvContent = buildString {
-                appendLine("TYPE,NAME,EXPIRY,QTY,WEIGHT,UNIT,BRAND,FAV,IMAGE,ACTION,TIMESTAMP,BARCODE")
+                appendLine("TYPE,NAME,EXPIRY,QTY,WEIGHT,UNIT,BRAND,FAV,IMAGE,ACTION,TIMESTAMP,BARCODE,DATE_ADDED,DATE_MODIFIED")
                 for (p in products) {
-                    appendLine("PRODUCT,\"${escape(p.name)}\",${p.expirationDate ?: ""},${p.quantity},${p.weight ?: ""},${p.weightUnit},\"${escape(p.brand)}\",${p.isFavorite},\"${escape(p.imageUri)}\",,,${p.barcode ?: ""}")
+                    appendLine("PRODUCT,\"${escape(p.name)}\",${p.expirationDate ?: ""},${p.quantity},${p.weight ?: ""},${p.weightUnit},\"${escape(p.brand)}\",${p.isFavorite},\"${escape(p.imageUri)}\",,,${p.barcode ?: ""},${p.dateAdded},${p.dateModified ?: ""}")
                 }
                 for (h in history) {
-                    appendLine("HISTORY,\"${escape(h.productName)}\",${h.expirationDate ?: ""},${h.quantity},${h.weight ?: ""},${h.weightUnit},\"${escape(h.brand)}\",${h.isFavorite},\"${escape(h.imageUri)}\",${h.action},${h.timestamp},${h.barcode ?: ""}")
+                    appendLine("HISTORY,\"${escape(h.productName)}\",${h.expirationDate ?: ""},${h.quantity},${h.weight ?: ""},${h.weightUnit},\"${escape(h.brand)}\",${h.isFavorite},\"${escape(h.imageUri)}\",${h.action},${h.timestamp},${h.barcode ?: ""},${h.dateAdded},${h.dateModified ?: ""}")
                 }
             }
 
@@ -227,7 +264,9 @@ class SettingsActivity : ThemedAppCompatActivity() {
                             brand = parts[6].takeIf { it.isNotBlank() },
                             isFavorite = parts[7].toBoolean(),
                             imageUri = parts[8].takeIf { it.isNotBlank() },
-                            barcode = parts.getOrNull(11)?.takeIf { it.isNotBlank() }
+                            barcode = parts.getOrNull(11)?.takeIf { it.isNotBlank() },
+                            dateAdded = parts.getOrNull(12)?.toLongOrNull() ?: System.currentTimeMillis(),
+                            dateModified = parts.getOrNull(13)?.toLongOrNull()
                         )
                         repo.insertProduct(product)
                         productsImported++
@@ -243,7 +282,9 @@ class SettingsActivity : ThemedAppCompatActivity() {
                             imageUri = parts[8].takeIf { it.isNotBlank() },
                             action = parts[9],
                             timestamp = parts[10].toLongOrNull() ?: System.currentTimeMillis(),
-                            barcode = parts.getOrNull(11)?.takeIf { it.isNotBlank() }
+                            barcode = parts.getOrNull(11)?.takeIf { it.isNotBlank() },
+                            dateAdded = parts.getOrNull(12)?.toLongOrNull() ?: System.currentTimeMillis(),
+                            dateModified = parts.getOrNull(13)?.toLongOrNull()
                         )
                         repo.insertHistory(history)
                         historyImported++

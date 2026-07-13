@@ -88,6 +88,18 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
         loadProductData()
         setupListeners()
         applyDateInputMode(DateInputMode.WHEEL)
+        setupKeyboardDismissal()
+    }
+
+    private fun setupKeyboardDismissal() {
+        binding.root.setOnTouchListener { _, _ ->
+            currentFocus?.let { view ->
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                imm.hideSoftInputFromWindow(view.windowToken, 0)
+                view.clearFocus()
+            }
+            false
+        }
     }
 
     private fun setupWindowInsets() {

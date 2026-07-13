@@ -36,8 +36,11 @@ class HistoryActivity : ThemedAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowInsetsHelper.enableEdgeToEdge(this)
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setupWindowInsets()
 
         // Setup RecyclerView
         adapter = HistoryAdapter(
@@ -55,6 +58,32 @@ class HistoryActivity : ThemedAppCompatActivity() {
         binding.recyclerHistory.layoutManager = LinearLayoutManager(this)
         binding.recyclerHistory.adapter = adapter
 
+        val swipeHandler = SwipeActionCallback(
+            context = this,
+            leftLabel = "Restore",
+            leftColor = android.graphics.Color.parseColor("#4CAF50"),
+            leftIconRes = R.drawable.ic_redo,
+            rightLabel = "Delete",
+            rightColor = android.graphics.Color.parseColor("#F44336"),
+            rightIconRes = R.drawable.ic_delete,
+            onSwipeLeft = { position ->
+                val h = adapter.currentList[position]
+                viewModel.restoreDeleted(h)
+                Toast.makeText(this, "Restored", Toast.LENGTH_SHORT).show()
+            },
+            onSwipeRight = { position ->
+                val h = adapter.currentList[position]
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(getString(R.string.history_permanently_delete_title))
+                    .setMessage(getString(R.string.history_permanently_delete_msg, h.productName))
+                    .setPositiveButton(getString(R.string.delete)) { _, _ -> viewModel.permanentlyDelete(h) }
+                    .setNegativeButton(getString(R.string.cancel)) { _, _ -> adapter.notifyItemChanged(position) }
+                    .setOnCancelListener { adapter.notifyItemChanged(position) }
+                    .show()
+            }
+        )
+        androidx.recyclerview.widget.ItemTouchHelper(swipeHandler).attachToRecyclerView(binding.recyclerHistory)
+
         setupSearch()
         setupSort()
         setupFilter()
@@ -64,6 +93,19 @@ class HistoryActivity : ThemedAppCompatActivity() {
         viewModel.allHistory.observe(this) { list ->
             fullList = list ?: emptyList()
             applyFilters()
+        }
+    }
+
+    private fun setupWindowInsets() {
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            binding.topBar.setPadding(
+                binding.topBar.paddingLeft,
+                systemBars.top,
+                binding.topBar.paddingRight,
+                binding.topBar.paddingBottom
+            )
+            insets
         }
     }
 
@@ -102,7 +144,7 @@ class HistoryActivity : ThemedAppCompatActivity() {
         binding.searchViewHistory.requestFocus()
 
         binding.countersLayout.visibility = View.GONE
-        binding.layoutSortHistory.root.visibility = View.GONE
+        binding.layoutSortHistoryInclude.root.visibility = View.GONE
 
         showKeyboard()
     }
@@ -113,7 +155,7 @@ class HistoryActivity : ThemedAppCompatActivity() {
         binding.searchViewHistory.visibility = View.GONE
 
         binding.countersLayout.visibility = View.VISIBLE
-        binding.layoutSortHistory.root.visibility = View.VISIBLE
+        binding.layoutSortHistoryInclude.root.visibility = View.VISIBLE
 
         searchQuery = ""
         applyFilters()
@@ -132,7 +174,7 @@ class HistoryActivity : ThemedAppCompatActivity() {
 
     // ---------- SORT ----------
     private fun setupSort() {
-        val sortBinding = binding.layoutSortHistory
+        val sortBinding = binding.layoutSortHistoryInclude
         val sortLayout = sortBinding.root
         val sortText: TextView = sortBinding.textSortHistory
 
@@ -281,7 +323,7 @@ class HistoryActivity : ThemedAppCompatActivity() {
         val hasResults = list.isNotEmpty()
 
         binding.countersLayout.visibility = if (isSearching) View.GONE else View.VISIBLE
-        binding.layoutSortHistory.root.visibility = if (isSearching) View.GONE else View.VISIBLE
+        binding.layoutSortHistoryInclude.root.visibility = if (isSearching) View.GONE else View.VISIBLE
 
         if (hasResults) {
             binding.recyclerHistory.visibility = View.VISIBLE

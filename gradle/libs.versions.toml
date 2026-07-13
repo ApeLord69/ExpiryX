@@ -11,9 +11,21 @@ activity = "1.9.3"
 constraintlayout = "2.2.0"
 room = "2.8.4"
 play-services-auth = "21.6.0"
+play-services-base = "18.10.0"
 firebase-bom = "34.14.0"
 google-services = "4.4.2"
 guava = "33.2.1-android"
+recyclerview = "1.3.2"
+fragment = "1.8.4"
+lifecycle = "2.8.6"
+work = "2.9.0"
+glide = "4.16.0"
+camera = "1.4.0"
+mlkit = "17.3.0"
+okhttp = "4.11.0"
+json = "20230227"
+coroutines = "1.7.3"
+mpandroidchart = "3.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -22,17 +34,35 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" } # Changed 'activity' to 'activity-ktx'
+androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "camera" }
+androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camera" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camera" }
+androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camera" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "play-services-auth" }
+play-services-base = { group = "com.google.android.gms", name = "play-services-base", version.ref = "play-services-base" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
-guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
+mlkit-barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkit" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+json = { group = "org.json", name = "json", version.ref = "json" }
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -40,5 +70,3 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
-
-

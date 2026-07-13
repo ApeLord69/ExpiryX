@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 object AccountManager {
     private const val TAG = "AccountManager"
@@ -292,10 +293,14 @@ object AccountManager {
                 history.forEach { batch.delete(it.reference) }
                 batch.commit().await()
                 
-                onComplete(true)
+                withContext(Dispatchers.Main) {
+                    onComplete(true)
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Full cloud wipe failed", e)
-                onComplete(false)
+                withContext(Dispatchers.Main) {
+                    onComplete(false)
+                }
             }
         }
     }

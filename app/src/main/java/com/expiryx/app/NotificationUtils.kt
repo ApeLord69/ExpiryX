@@ -16,6 +16,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 object NotificationUtils {
     private const val CHANNEL_ID = "expiry_notifications"
     private const val CHANNEL_NAME = "Expiry Reminders"
@@ -69,6 +73,19 @@ object NotificationUtils {
                 })
         } else {
             sendNotification(context, builder.build(), productId, title, message)
+        }
+
+        // Log the notification to the internal Notification Log Center
+        logNotification(context, title, message)
+    }
+
+    private fun logNotification(context: Context, title: String, message: String) {
+        val app = context.applicationContext as ProductApplication
+        val db = app.database
+        val urgency = if (message.contains("today", ignoreCase = true) || message.contains("expired", ignoreCase = true)) 1 else 0
+        
+        CoroutineScope(Dispatchers.IO).launch {
+            db.notificationLogDao().insert(NotificationLog(title = title, message = message, urgency = urgency))
         }
     }
 

@@ -20,8 +20,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // FIX: wrap in provider so Gradle evaluates properly
-        resValue("string", "app_version_name", versionName ?: "unknown")
+        // FIXED: Use a literal string or access from project properties if needed, 
+        // but ensuring it's not null here.
+        resValue("string", "app_version_name", "1.1.0-alpha")
     }
 
 
@@ -69,17 +70,16 @@ dependencies {
     // AndroidX core UI
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.firebase.database)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("androidx.fragment:fragment-ktx:1.8.4")
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.fragment.ktx)
 
     // Lifecycle
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // Room
     implementation(libs.room.runtime)
@@ -88,39 +88,41 @@ dependencies {
 
     // Google Sign-In & Firebase
     implementation(libs.play.services.auth)
-    implementation("com.google.android.gms:play-services-base:18.10.0")
+    implementation(libs.play.services.base)
+    
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.database)
 
     // WorkManager
-    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Glide
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
+    implementation(libs.glide)
+    kapt(libs.glide.compiler)
 
     // CameraX
-    implementation("androidx.camera:camera-core:1.4.0")
-    implementation("androidx.camera:camera-camera2:1.4.0")
-    implementation("androidx.camera:camera-lifecycle:1.4.0")
-    implementation("androidx.camera:camera-view:1.4.0")
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
 
     // ML Kit
-    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation(libs.mlkit.barcode.scanning)
 
     // Networking
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("org.json:json:20230227")
+    implementation(libs.okhttp)
+    implementation(libs.json)
 
     // Guava (Fix for ListenableFuture issue)
     implementation(libs.guava)
 
     // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation(libs.kotlinx.coroutines.android)
 
     // Charts
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation(libs.mpandroidchart)
 
     // Apache POI (Excel export)
 

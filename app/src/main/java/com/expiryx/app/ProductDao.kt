@@ -27,7 +27,14 @@ interface ProductDao {
     )
     fun getAllProducts(): LiveData<List<Product>>
 
-    @Query("SELECT * FROM product_table")
+    @Query(
+        """
+        SELECT * FROM product_table 
+        ORDER BY 
+            CASE WHEN expirationDate IS NULL THEN 1 ELSE 0 END,
+            expirationDate ASC
+    """,
+    )
     suspend fun getAllProductsNow(): List<Product>
 
     @Query("SELECT * FROM product_table WHERE id = :id LIMIT 1")

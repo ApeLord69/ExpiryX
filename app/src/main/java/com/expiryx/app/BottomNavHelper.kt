@@ -27,10 +27,11 @@ object BottomNavHelper {
     }
 
     private fun navigateTo(activity: AppCompatActivity, target: Class<*>) {
-        activity.startActivity(
-            Intent(activity, target).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        )
+        val intent = Intent(activity, target)
+        // REORDER_TO_FRONT keeps activity instances alive and switches between them efficiently.
+        // We REMOVE activity.finish() to maintain the tab states and avoid unrecoverable input channels.
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        activity.startActivity(intent)
         activity.overridePendingTransition(0, 0)
-        activity.finish()
     }
 }

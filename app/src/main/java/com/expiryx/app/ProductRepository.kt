@@ -10,7 +10,12 @@ class ProductRepository(
     val allHistory: LiveData<List<History>> = historyDao.getAllHistory()
 
     suspend fun insertProduct(product: Product) {
-        val updatedProduct = product.copy(dateModified = System.currentTimeMillis())
+        // If dateModified is already set (e.g. from an import), use it; otherwise set it to current time.
+        val updatedProduct = if (product.dateModified == null) {
+            product.copy(dateModified = System.currentTimeMillis())
+        } else {
+            product
+        }
         productDao.insert(updatedProduct)
         AccountManager.pushProductToCloud(updatedProduct)
     }
