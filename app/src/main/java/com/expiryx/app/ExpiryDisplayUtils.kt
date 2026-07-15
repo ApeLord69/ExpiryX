@@ -37,6 +37,16 @@ object ExpiryDisplayUtils {
             return typedValue.data
         }
 
+        val isColorblind = Prefs.isColorblindModeEnabled(context)
+        val currentText = textView.text.toString()
+        
+        fun updateText(prefix: String) {
+            if (isColorblind && !currentText.startsWith(prefix)) {
+                textView.text = "$prefix $currentText"
+                textView.setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+        }
+
         if (expiryMillis == null) {
             textView.setBackgroundResource(R.drawable.pill_expiry_safe_bg)
             textView.setTextColor(getThemeColor(R.attr.expiryTextUnknown))
@@ -45,16 +55,19 @@ object ExpiryDisplayUtils {
 
         when (ExpiryTrafficLightUtils.classify(expiryMillis)) {
             ExpiryTrafficLight.EXPIRED -> {
-                textView.setBackgroundResource(R.drawable.pill_expiry_expired_list_bg)
+                textView.setBackgroundResource(if (isColorblind) R.drawable.pill_expiry_expired_high_contrast else R.drawable.pill_expiry_expired_list_bg)
                 textView.setTextColor(getThemeColor(R.attr.expiryTextExpired))
+                updateText("✖")
             }
             ExpiryTrafficLight.URGENT -> {
-                textView.setBackgroundResource(R.drawable.pill_expiry_urgent_bg)
+                textView.setBackgroundResource(if (isColorblind) R.drawable.pill_expiry_urgent_high_contrast else R.drawable.pill_expiry_urgent_bg)
                 textView.setTextColor(getThemeColor(R.attr.expiryTextUrgent))
+                updateText("‼")
             }
             ExpiryTrafficLight.SAFE -> {
-                textView.setBackgroundResource(R.drawable.pill_expiry_safe_bg)
+                textView.setBackgroundResource(if (isColorblind) R.drawable.pill_expiry_safe_high_contrast else R.drawable.pill_expiry_safe_bg)
                 textView.setTextColor(getThemeColor(R.attr.expiryTextSafe))
+                updateText("✔")
             }
             ExpiryTrafficLight.UNKNOWN -> {
                 textView.setBackgroundResource(R.drawable.pill_expiry_safe_bg)

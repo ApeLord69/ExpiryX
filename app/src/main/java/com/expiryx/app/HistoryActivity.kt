@@ -206,6 +206,11 @@ class HistoryActivity : ThemedAppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        setupBottomNav()
+    }
+
     // ---------- NAV ----------
     private fun setupBottomNav() {
         BottomNavHelper.setup(this, binding.bottomNav.bottomNavigationView, R.id.nav_history)

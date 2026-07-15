@@ -24,7 +24,7 @@ import okhttp3.Request
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
-class AddProductBottomSheet : BottomSheetDialogFragment() {
+class AddProductBottomSheet : ThemedBottomSheetDialogFragment() {
 
     private var progressBar: ProgressBar? = null
 

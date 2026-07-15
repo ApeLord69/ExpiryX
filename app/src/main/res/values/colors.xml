@@ -41,6 +41,16 @@
     <color name="violet_container">#F3E5F5</color>
     <color name="violet_on_container">#4A148C</color>
 
+    <color name="forest_primary">#2E7D32</color>
+    <color name="forest_on_primary">#FFFFFF</color>
+    <color name="forest_container">#E8F5E9</color>
+    <color name="forest_on_container">#1B5E20</color>
+
+    <color name="rose_primary">#E91E63</color>
+    <color name="rose_on_primary">#FFFFFF</color>
+    <color name="rose_container">#FCE4EC</color>
+    <color name="rose_on_container">#880E4F</color>
+
     <color name="header_deleted">#9E9E9E</color>
     <color name="gold">#FFD700</color>
     <color name="light_gold">#FFF8DC</color>

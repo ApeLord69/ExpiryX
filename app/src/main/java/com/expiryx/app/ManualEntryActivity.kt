@@ -121,10 +121,19 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
 
     private fun setupToolbar() {
         binding.toolbarManualEntry.title = if (editingProduct != null) getString(R.string.edit) else getString(R.string.add_product)
+        
+        // Ensure back arrow is shown correctly with theme-aware color
+        val backArrow = androidx.appcompat.content.res.AppCompatResources.getDrawable(this, R.drawable.ic_back)
+        backArrow?.let {
+            val color = if (ThemeManager.isDarkMode(this)) android.graphics.Color.WHITE else android.graphics.Color.BLACK
+            androidx.core.graphics.drawable.DrawableCompat.setTint(it, color)
+            binding.toolbarManualEntry.navigationIcon = it
+        }
+
         binding.toolbarManualEntry.setNavigationOnClickListener { finish() }
         binding.toolbarManualEntry.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.action_redo -> {
+                R.id.action_clear -> {
                     com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                         .setTitle("Reset Form")
                         .setMessage("Are you sure you want to clear all fields?")
@@ -349,7 +358,7 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
         productBarcode = intent.getStringExtra("barcode") ?: editingProduct?.barcode
 
         editingProduct?.let { product ->
-            binding.toolbarManualEntry.title = "Edit Product"
+            binding.toolbarManualEntry.title = getString(R.string.edit)
             binding.editTextProductName.setText(product.name)
             binding.editTextBrand.setText(product.brand)
             product.expirationDate?.let { setExpiryFromMillis(it) }

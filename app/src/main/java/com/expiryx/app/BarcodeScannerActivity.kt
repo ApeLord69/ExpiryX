@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -21,12 +20,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -36,12 +30,14 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 @ExperimentalGetImage
-class BarcodeScannerActivity : AppCompatActivity() {
+class BarcodeScannerActivity : ThemedAppCompatActivity() {
 
     private lateinit var previewView: PreviewView
     private lateinit var progressBar: ProgressBar
     private lateinit var cameraExecutor: ExecutorService
     private var cameraProvider: ProcessCameraProvider? = null
+    private var camera: androidx.camera.core.Camera? = null
+    private var isFlashlightOn = false
     private var analysis: ImageAnalysis? = null
     private val handled = AtomicBoolean(false)
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -62,6 +58,10 @@ class BarcodeScannerActivity : AppCompatActivity() {
         WindowInsetsHelper.enableEdgeToEdge(this)
         setContentView(R.layout.activity_barcode_scanner)
 
+        // Force camera theme attributes after ThemedAppCompatActivity might have reset them
+        window.statusBarColor = android.graphics.Color.BLACK
+        window.navigationBarColor = android.graphics.Color.BLACK
+
         val root = findViewById<View>(R.id.cameraRoot)
         androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
             val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
@@ -74,6 +74,21 @@ class BarcodeScannerActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBarScan)
         cameraExecutor = Executors.newSingleThreadExecutor()
 
+        findViewById<View>(R.id.btnToggleFlashlight).setOnClickListener {
+            toggleFlashlight()
+        }
+
+        findViewById<View>(R.id.btnClose).setOnClickListener {
+            finish()
+        }
+
+        findViewById<View>(R.id.btnManualEntry).setOnClickListener {
+            startActivity(Intent(this, ManualEntryActivity::class.java))
+            finish()
+        }
+
+        startScanAnimation()
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             == PackageManager.PERMISSION_GRANTED
         ) {
@@ -81,6 +96,20 @@ class BarcodeScannerActivity : AppCompatActivity() {
         } else {
             cameraPermission.launch(Manifest.permission.CAMERA)
         }
+    }
+
+    private fun startScanAnimation() {
+        val scanLine = findViewById<View>(R.id.scanLine)
+        val animation = android.view.animation.TranslateAnimation(
+            0f, 0f,
+            0f, 280f * resources.displayMetrics.density
+        ).apply {
+            duration = 2000
+            repeatCount = android.view.animation.Animation.INFINITE
+            repeatMode = android.view.animation.Animation.REVERSE
+            interpolator = android.view.animation.LinearInterpolator()
+        }
+        scanLine.startAnimation(animation)
     }
 
     private fun setLoading(loading: Boolean) {
@@ -104,10 +133,7 @@ class BarcodeScannerActivity : AppCompatActivity() {
 
                 val options = BarcodeScannerOptions.Builder()
                     .setBarcodeFormats(
-                        Barcode.FORMAT_EAN_13,
-                        Barcode.FORMAT_EAN_8,
-                        Barcode.FORMAT_UPC_A,
-                        Barcode.FORMAT_UPC_E
+                        Barcode.FORMAT_ALL_FORMATS
                     )
                     .build()
                 val scanner = BarcodeScanning.getClient(options)
@@ -129,19 +155,12 @@ class BarcodeScannerActivity : AppCompatActivity() {
 
                     scanner.process(image)
                         .addOnSuccessListener { barcodes ->
-                            val candidate = barcodes.firstOrNull { bc ->
-                                val v = bc.rawValue
-                                v != null && v.all { it.isDigit() } && v.length in 8..14
-                            }?.rawValue
+                            val candidate = barcodes.firstOrNull()?.rawValue
 
                             if (candidate != null && handled.compareAndSet(false, true)) {
                                 runOnUiThread {
                                     setLoading(true)
-                                    Toast.makeText(this, "Barcode detected...", Toast.LENGTH_SHORT).show()
-                                }
-                                try {
-                                    cameraProvider?.unbindAll()
-                                } catch (_: Exception) {
+                                    Toast.makeText(this, "Barcode detected: $candidate", Toast.LENGTH_SHORT).show()
                                 }
                                 fetchProductInfo(candidate)
                             }
@@ -154,7 +173,7 @@ class BarcodeScannerActivity : AppCompatActivity() {
                 }
 
                 cameraProvider?.unbindAll()
-                cameraProvider?.bindToLifecycle(
+                camera = cameraProvider?.bindToLifecycle(
                     this,
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     preview,
@@ -164,6 +183,18 @@ class BarcodeScannerActivity : AppCompatActivity() {
                 Log.e("BarcodeScanner", "Use case binding failed", e)
             }
         }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun toggleFlashlight() {
+        camera?.let {
+            isFlashlightOn = !isFlashlightOn
+            it.cameraControl.enableTorch(isFlashlightOn)
+            
+            findViewById<com.google.android.material.button.MaterialButton>(R.id.btnToggleFlashlight).apply {
+                text = if (isFlashlightOn) "Flash OFF" else "Flash ON"
+                alpha = if (isFlashlightOn) 1.0f else 0.8f
+            }
+        }
     }
 
     private fun fetchProductInfo(barcode: String) {
@@ -181,8 +212,6 @@ class BarcodeScannerActivity : AppCompatActivity() {
                     if (!resp.isSuccessful) null else resp.body?.string()
                 }
 
-                withContext(Dispatchers.Main) { setLoading(false) }
-
                 if (body != null) {
                     val json = JSONObject(body)
                     if (json.optInt("status", 0) == 1) {
@@ -193,16 +222,15 @@ class BarcodeScannerActivity : AppCompatActivity() {
                         val weightString = productJson.optString("quantity", "")
                         val imageUrl = productJson.optString("image_url", "").takeIf { it.isNotBlank() }
 
-                        // Determine weight unit from API response
                         val weightUnit = when {
                             weightString.contains("ml", ignoreCase = true) -> "ml"
                             weightString.contains("g", ignoreCase = true) -> "g"
-                            else -> "g" // Default to grams
+                            else -> "g"
                         }
                         
                         val product = Product(
                             id = 0,
-                            name = name,
+                            name = if (name.isBlank()) "Unknown Product" else name,
                             expirationDate = null,
                             quantity = 1,
                             brand = brand,
@@ -210,33 +238,39 @@ class BarcodeScannerActivity : AppCompatActivity() {
                             weightUnit = weightUnit,
                             imageUri = imageUrl,
                             isFavorite = false,
-                            barcode = barcode, // Store the scanned barcode
+                            barcode = barcode,
                             dateAdded = System.currentTimeMillis(),
                             dateModified = null
                         )
 
                         withContext(Dispatchers.Main) {
+                            setLoading(false)
                             val intent = Intent(
                                 this@BarcodeScannerActivity,
                                 ManualEntryActivity::class.java
                             ).apply {
                                 putExtra("product", product)
                                 putExtra("isEdit", false)
-                                putExtra("barcode", barcode) // Also pass barcode separately for easy access
+                                putExtra("barcode", barcode)
                             }
                             startActivity(intent)
                             finish()
                         }
                     } else {
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(this@BarcodeScannerActivity, "Product not found.", Toast.LENGTH_SHORT).show()
-                            finish()
+                            setLoading(false)
+                            Toast.makeText(this@BarcodeScannerActivity, "Product not found in database.", Toast.LENGTH_SHORT).show()
+                            
+                            // Resume preview by resetting the handled flag
+                            handled.set(false)
                         }
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@BarcodeScannerActivity, "No response from server.", Toast.LENGTH_SHORT).show()
-                        finish()
+                        setLoading(false)
+                        Toast.makeText(this@BarcodeScannerActivity, "Network error. Try manual entry.", Toast.LENGTH_SHORT).show()
+                        
+                        handled.set(false)
                     }
                 }
             } catch (e: Exception) {
@@ -244,7 +278,8 @@ class BarcodeScannerActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     setLoading(false)
                     Toast.makeText(this@BarcodeScannerActivity, "Error fetching product info.", Toast.LENGTH_SHORT).show()
-                    finish()
+                    
+                    handled.set(false)
                 }
             }
         }

@@ -13,6 +13,8 @@ object Prefs {
     private const val KEY_REMINDER_INTERVALS = "reminder_intervals"
     private const val KEY_SNOOZE_END_TIMESTAMP = "snooze_end_timestamp"
     private const val KEY_SYNC_ENABLED = "sync_enabled"
+    private const val KEY_HIGH_CONTRAST = "high_contrast"
+    private const val KEY_COLORBLIND_MODE = "colorblind_mode"
 
     private fun sp(context: Context): SharedPreferences =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
@@ -88,5 +90,20 @@ object Prefs {
 
     fun clearSnooze(context: Context) {
         sp(context).edit().putLong(KEY_SNOOZE_END_TIMESTAMP, 0L).apply()
+    }
+
+    // ---- Accessibility ----
+    fun isHighContrastEnabled(context: Context): Boolean =
+        sp(context).getBoolean(KEY_HIGH_CONTRAST, false)
+
+    fun setHighContrastEnabled(context: Context, enabled: Boolean) {
+        sp(context).edit().putBoolean(KEY_HIGH_CONTRAST, enabled).apply()
+    }
+
+    fun isColorblindModeEnabled(context: Context): Boolean =
+        sp(context).getBoolean(KEY_COLORBLIND_MODE, false)
+
+    fun setColorblindModeEnabled(context: Context, enabled: Boolean) {
+        sp(context).edit().putBoolean(KEY_COLORBLIND_MODE, enabled).apply()
     }
 }

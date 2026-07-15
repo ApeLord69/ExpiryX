@@ -303,6 +303,92 @@
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Accessibility Section -->
+            <TextView
+                style="@style/SettingsHeader"
+                android:paddingTop="8dp"
+                android:text="@string/accessibility_title" />
+
+            <!-- High Contrast Toggle -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardHighContrast"
+                style="@style/SettingsCard"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                app:cardBackgroundColor="?attr/colorSurface">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:id="@+id/contrast_icon_container"
+                        style="@style/SettingsIconContainer"
+                        android:backgroundTint="?attr/colorPrimary">
+                        <ImageView
+                            style="@style/SettingsIcon"
+                            android:src="@drawable/ic_palette"
+                            app:tint="@color/white"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        style="@style/SettingsTextLayout"
+                        android:layout_toEndOf="@id/contrast_icon_container"
+                        android:layout_toStartOf="@+id/switchHighContrast">
+                        <TextView style="@style/SettingsTitle" android:text="@string/high_contrast_title" />
+                        <TextView style="@style/SettingsSubtitle" android:text="@string/high_contrast_subtitle" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchHighContrast"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"/>
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Colorblind Mode Toggle -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardColorblind"
+                style="@style/SettingsCard"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                app:cardBackgroundColor="?attr/colorSurface">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:id="@+id/colorblind_icon_container"
+                        style="@style/SettingsIconContainer"
+                        android:backgroundTint="?attr/colorPrimary">
+                        <ImageView
+                            style="@style/SettingsIcon"
+                            android:src="@drawable/ic_star"
+                            app:tint="@color/white"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        style="@style/SettingsTextLayout"
+                        android:layout_toEndOf="@id/colorblind_icon_container"
+                        android:layout_toStartOf="@+id/switchColorblind">
+                        <TextView style="@style/SettingsTitle" android:text="@string/colorblind_assist_title" />
+                        <TextView style="@style/SettingsSubtitle" android:text="@string/colorblind_assist_subtitle" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchColorblind"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"/>
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Data & Storage Section -->
             <TextView
                 style="@style/SettingsHeader"

@@ -158,6 +158,11 @@ class MainActivity : ThemedAppCompatActivity() {
         androidx.recyclerview.widget.ItemTouchHelper(swipeHandler).attachToRecyclerView(binding.recyclerProducts)
     }
 
+    override fun onResume() {
+        super.onResume()
+        setupBottomNavigation()
+    }
+
     private fun setupBottomNavigation() {
         BottomNavHelper.setup(this, binding.bottomNavInclude.bottomNavigationView, R.id.nav_home)
     }

@@ -194,4 +194,12 @@
     <string name="expiry_tomorrow">Tomorrow</string>
     <string name="expiry_days_left">%1$d days left</string>
     <string name="error_expiry_date_required">Expiry date is required</string>
+
+    <!-- Accessibility -->
+    <string name="clear_all">Clear All</string>
+    <string name="clear_fields_confirm">Are you sure you want to clear all fields?</string>
+    <string name="high_contrast_title">Increase Text Contrast</string>
+    <string name="high_contrast_subtitle">Force absolute black/white text</string>
+    <string name="colorblind_assist_title">Colorblind Assist Overlay</string>
+    <string name="colorblind_assist_subtitle">Add patterns/text to expiry pills</string>
 </resources>

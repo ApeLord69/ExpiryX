@@ -48,6 +48,9 @@ class SettingsActivity : ThemedAppCompatActivity() {
         // Setup Sync Toggle
         setupSyncToggle()
 
+        // Setup Accessibility Toggles
+        setupAccessibilityToggles()
+
         binding.notificationsCard.setOnClickListener {
             startActivity(Intent(this, NotificationSettingsActivity::class.java))
             overridePendingTransition(0, 0)
@@ -152,6 +155,11 @@ class SettingsActivity : ThemedAppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        setupBottomNav()
+    }
+
     private fun setupBottomNav() {
         BottomNavHelper.setup(this, binding.bottomNav.bottomNavigationView, R.id.nav_settings)
     }
@@ -193,6 +201,23 @@ class SettingsActivity : ThemedAppCompatActivity() {
         binding.syncSwitch.setOnCheckedChangeListener { _, isChecked ->
             Prefs.setSyncEnabled(this, isChecked)
             if (AccountManager.isLoggedIn()) AccountManager.startSync(this)
+        }
+    }
+
+    private fun setupAccessibilityToggles() {
+        binding.switchHighContrast.isChecked = Prefs.isHighContrastEnabled(this)
+        binding.switchHighContrast.setOnCheckedChangeListener { _, isChecked ->
+            Prefs.setHighContrastEnabled(this, isChecked)
+            recreate()
+        }
+
+        binding.switchColorblind.isChecked = Prefs.isColorblindModeEnabled(this)
+        binding.switchColorblind.setOnCheckedChangeListener { _, isChecked ->
+            Prefs.setColorblindModeEnabled(this, isChecked)
+            // No need to recreate everything, but might be safer for list updates.
+            // If the list uses ExpiryDisplayUtils, it will pick it up on next bind.
+            // For immediate effect on home/history, recreate is easiest.
+            recreate()
         }
     }
 

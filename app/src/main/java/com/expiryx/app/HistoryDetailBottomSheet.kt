@@ -9,11 +9,10 @@ import android.widget.Toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.bumptech.glide.Glide
 import com.expiryx.app.databinding.BottomsheetHistoryDetailBinding
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.text.SimpleDateFormat
 import java.util.*
 
-class HistoryDetailBottomSheet : BottomSheetDialogFragment() {
+class HistoryDetailBottomSheet : ThemedBottomSheetDialogFragment() {
 
     private var _binding: BottomsheetHistoryDetailBinding? = null
     private val binding get() = _binding!!

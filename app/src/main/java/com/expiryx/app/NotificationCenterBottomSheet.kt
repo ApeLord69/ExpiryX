@@ -12,14 +12,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.expiryx.app.databinding.BottomsheetNotificationLogBinding
 import com.expiryx.app.databinding.ItemNotificationLogBinding
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class NotificationCenterBottomSheet : BottomSheetDialogFragment() {
+class NotificationCenterBottomSheet : ThemedBottomSheetDialogFragment() {
 
     private var _binding: BottomsheetNotificationLogBinding? = null
     private val binding get() = _binding!!

@@ -20,6 +20,8 @@ object ThemeManager {
     const val ACCENT_CORAL = 1
     const val ACCENT_SKY = 2
     const val ACCENT_VIOLET = 3
+    const val ACCENT_FOREST = 4
+    const val ACCENT_ROSE = 5
 
     data class AccentOption(
         val id: Int,
@@ -33,6 +35,8 @@ object ThemeManager {
         AccentOption(ACCENT_CORAL, "Coral", R.style.Theme_ExpiryX_Coral, R.color.coral_primary),
         AccentOption(ACCENT_SKY, "Sky Blue", R.style.Theme_ExpiryX_Sky, R.color.sky_primary),
         AccentOption(ACCENT_VIOLET, "Violet", R.style.Theme_ExpiryX_Violet, R.color.violet_primary),
+        AccentOption(ACCENT_FOREST, "Forest Green", R.style.Theme_ExpiryX_Forest, R.color.forest_primary),
+        AccentOption(ACCENT_ROSE, "Rose Pink", R.style.Theme_ExpiryX_Rose, R.color.rose_primary),
     )
 
     private fun prefs(context: Context): SharedPreferences =
@@ -66,6 +70,9 @@ object ThemeManager {
 
     fun applyActivityTheme(activity: Activity) {
         activity.setTheme(getAccentThemeRes(activity))
+        if (Prefs.isHighContrastEnabled(activity)) {
+            activity.theme.applyStyle(R.style.ThemeOverlay_ExpiryX_HighContrast, true)
+        }
     }
 
     fun applyNightMode(themeMode: Int) {

@@ -18,6 +18,11 @@
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ExpiryX.BottomSheetDialog</item>
         <item name="alertDialogTheme">@style/Theme.Material3.DayNight.Dialog</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.Material3.MaterialAlertDialog</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.Material3.AutoCompleteTextView</item>
+        <item name="android:actionMenuTextColor">?attr/colorOnSurface</item>
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="colorControlHighlight">?attr/colorPrimaryContainer</item>
         <item name="expiryTextSafe">@color/expiry_text_safe_light</item>
         <item name="expiryTextUrgent">@color/expiry_text_urgent_light</item>
         <item name="expiryTextExpired">@color/expiry_text_expired_light</item>
@@ -25,8 +30,16 @@
     </style>
 
     <style name="ThemeOverlay.ExpiryX.BottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">
-        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="colorPrimary">?attr/colorPrimary</item>
+        <item name="colorOnPrimary">?attr/colorOnPrimary</item>
+        <item name="colorPrimaryContainer">?attr/colorPrimaryContainer</item>
+        <item name="colorOnPrimaryContainer">?attr/colorOnPrimaryContainer</item>
+        <item name="colorSecondary">?attr/colorSecondary</item>
+        <item name="colorOnSecondary">?attr/colorOnSecondary</item>
     </style>
 
     <!-- Default app theme = Lighter Aqua -->
@@ -39,6 +52,8 @@
         <item name="colorOnPrimaryContainer">@color/teal_700</item>
         <item name="colorSecondary">@color/teal_700</item>
         <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/your_teal_color_light</item>
+        <item name="colorOnSecondaryContainer">@color/teal_700</item>
     </style>
 
     <style name="Theme.ExpiryX.Coral" parent="Theme.ExpiryX.Base">
@@ -48,6 +63,8 @@
         <item name="colorOnPrimaryContainer">@color/coral_on_container</item>
         <item name="colorSecondary">@color/coral_on_container</item>
         <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/coral_container</item>
+        <item name="colorOnSecondaryContainer">@color/coral_on_container</item>
     </style>
 
     <style name="Theme.ExpiryX.Sky" parent="Theme.ExpiryX.Base">
@@ -57,6 +74,8 @@
         <item name="colorOnPrimaryContainer">@color/sky_on_container</item>
         <item name="colorSecondary">@color/sky_on_container</item>
         <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/sky_container</item>
+        <item name="colorOnSecondaryContainer">@color/sky_on_container</item>
     </style>
 
     <style name="Theme.ExpiryX.Violet" parent="Theme.ExpiryX.Base">
@@ -66,17 +85,57 @@
         <item name="colorOnPrimaryContainer">@color/violet_on_container</item>
         <item name="colorSecondary">@color/violet_on_container</item>
         <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/violet_container</item>
+        <item name="colorOnSecondaryContainer">@color/violet_on_container</item>
     </style>
 
-    <style name="Theme.ExpiryX.Camera" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="Theme.ExpiryX.Forest" parent="Theme.ExpiryX.Base">
+        <item name="colorPrimary">@color/forest_primary</item>
+        <item name="colorOnPrimary">@color/forest_on_primary</item>
+        <item name="colorPrimaryContainer">@color/forest_container</item>
+        <item name="colorOnPrimaryContainer">@color/forest_on_container</item>
+        <item name="colorSecondary">@color/forest_on_container</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/forest_container</item>
+        <item name="colorOnSecondaryContainer">@color/forest_on_container</item>
+    </style>
+
+    <style name="Theme.ExpiryX.Rose" parent="Theme.ExpiryX.Base">
+        <item name="colorPrimary">@color/rose_primary</item>
+        <item name="colorOnPrimary">@color/rose_on_primary</item>
+        <item name="colorPrimaryContainer">@color/rose_container</item>
+        <item name="colorOnPrimaryContainer">@color/rose_on_container</item>
+        <item name="colorSecondary">@color/rose_on_container</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/rose_container</item>
+        <item name="colorOnSecondaryContainer">@color/rose_on_container</item>
+    </style>
+
+    <style name="Theme.ExpiryX.Camera" parent="Theme.ExpiryX">
         <item name="android:statusBarColor">@color/black</item>
         <item name="android:navigationBarColor">@color/black</item>
         <item name="android:windowFullscreen">true</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:colorBackground">@color/black</item>
+        <item name="colorSurface">@color/black</item>
+        <item name="colorOnSurface">@color/white</item>
     </style>
 
     <style name="ThemeOverlay.ExpiryX.NumberPicker" parent="ThemeOverlay.Material3.Light">
         <item name="android:textColorPrimary">?attr/colorOnSurface</item>
         <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
         <item name="colorControlNormal">@android:color/transparent</item>
+    </style>
+
+    <style name="ThemeOverlay.ExpiryX.HighContrast" parent="">
+        <item name="colorOnSurface">@color/black</item>
+        <item name="colorOnSurfaceVariant">@color/black</item>
+        <item name="colorOnBackground">@color/black</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorSecondary">@color/black</item>
+        <item name="expiryTextSafe">@color/black</item>
+        <item name="expiryTextUrgent">@color/black</item>
+        <item name="expiryTextExpired">@color/black</item>
     </style>
 </resources>

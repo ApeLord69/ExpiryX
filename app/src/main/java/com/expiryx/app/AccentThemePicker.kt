@@ -14,8 +14,11 @@ import com.google.android.material.card.MaterialCardView
 object AccentThemePicker {
 
     fun show(context: Context, onAccentSelected: () -> Unit) {
-        val dialog = BottomSheetDialog(context)
-        val content = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_accent_picker, null)
+        val accentTheme = ThemeManager.getAccentThemeRes(context)
+        val themedContext = androidx.appcompat.view.ContextThemeWrapper(context, accentTheme)
+        
+        val dialog = BottomSheetDialog(context, R.style.ThemeOverlay_ExpiryX_BottomSheetDialog)
+        val content = LayoutInflater.from(themedContext).inflate(R.layout.bottom_sheet_accent_picker, null)
         dialog.setContentView(content)
 
         val rowTop = content.findViewById<LinearLayout>(R.id.accentPickerRowTop)
@@ -23,7 +26,7 @@ object AccentThemePicker {
         val currentAccent = ThemeManager.getAccentTheme(context)
 
         ThemeManager.accentOptions.forEachIndexed { index, option ->
-            val row = if (index < 2) rowTop else rowBottom
+            val row = if (index < 3) rowTop else rowBottom
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_accent_option, row, false)
             bindOption(context, itemView, option, option.id == currentAccent)
             itemView.setOnClickListener {

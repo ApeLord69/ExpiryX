@@ -20,11 +20,11 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorSurface"
             app:navigationIcon="@drawable/ic_back"
-            app:navigationIconTint="#000000"
             app:title="Add Product"
             app:titleCentered="false"
             app:titleTextColor="?attr/colorOnSurface"
-            app:titleTextAppearance="?attr/textAppearanceTitleLarge" />
+            app:titleTextAppearance="?attr/textAppearanceTitleLarge"
+            app:menu="@menu/menu_manual_entry" />
 
         <View
             android:layout_width="match_parent"

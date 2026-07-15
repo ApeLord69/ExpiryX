@@ -8,12 +8,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.expiryx.app.databinding.BottomSheetProductDetailBinding
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ProductDetailBottomSheet : BottomSheetDialogFragment() {
+class ProductDetailBottomSheet : ThemedBottomSheetDialogFragment() {
 
     private var _binding: BottomSheetProductDetailBinding? = null
     private val binding get() = _binding!!

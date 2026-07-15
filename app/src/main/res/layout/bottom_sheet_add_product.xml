@@ -23,17 +23,17 @@
         android:paddingTop="8dp"
         android:paddingBottom="4dp">
 
-        <ImageButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnCloseSheet"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cancel"
             android:padding="12dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_back"
+            android:scaleType="fitCenter"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_back"
             app:tint="?attr/colorOnSurface" />
 
         <TextView
