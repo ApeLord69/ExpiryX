@@ -144,14 +144,14 @@ class MainActivity : ThemedAppCompatActivity() {
             onSwipeLeft = { position ->
                 val item = adapter.currentList[position]
                 if (item is ProductListItem.ProductItem) {
-                    markProductAsUsed(item.product)
+                    editProduct(item.product)
+                    adapter.notifyItemChanged(position)
                 }
             },
             onSwipeRight = { position ->
                 val item = adapter.currentList[position]
                 if (item is ProductListItem.ProductItem) {
-                    editProduct(item.product)
-                    adapter.notifyItemChanged(position)
+                    markProductAsUsed(item.product)
                 }
             }
         )

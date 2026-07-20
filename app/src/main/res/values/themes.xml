@@ -58,7 +58,7 @@
 
     <style name="Theme.ExpiryX.Coral" parent="Theme.ExpiryX.Base">
         <item name="colorPrimary">@color/coral_primary</item>
-        <item name="colorOnPrimary">@color/coral_on_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
         <item name="colorPrimaryContainer">@color/coral_container</item>
         <item name="colorOnPrimaryContainer">@color/coral_on_container</item>
         <item name="colorSecondary">@color/coral_on_container</item>
@@ -80,7 +80,7 @@
 
     <style name="Theme.ExpiryX.Violet" parent="Theme.ExpiryX.Base">
         <item name="colorPrimary">@color/violet_primary</item>
-        <item name="colorOnPrimary">@color/violet_on_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
         <item name="colorPrimaryContainer">@color/violet_container</item>
         <item name="colorOnPrimaryContainer">@color/violet_on_container</item>
         <item name="colorSecondary">@color/violet_on_container</item>

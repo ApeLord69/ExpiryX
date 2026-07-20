@@ -16,7 +16,6 @@ import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
 import com.bumptech.glide.Glide
 import com.expiryx.app.databinding.ActivityManualEntryBinding
@@ -86,6 +85,7 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
         setupExpiryDateWheel()
         setupDateModeToggle()
         loadProductData()
+        updateToolbarTitle()
         setupListeners()
         applyDateInputMode(DateInputMode.WHEEL)
         setupKeyboardDismissal()
@@ -105,14 +105,17 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
     private fun setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.appBarManualEntry.updatePadding(top = systemBars.top)
             
+            // Apply top inset as padding to the AppBarLayout so it draws under the status bar
+            binding.appBarManualEntry.setPadding(0, systemBars.top, 0, 0)
+            
+            // Adjust save button margin for navigation bar
             binding.btnSaveProduct.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 bottomMargin = (16 * resources.displayMetrics.density).toInt() + systemBars.bottom
             }
 
-            // Also pad the scroll view so it doesn't end behind the button
-            binding.manualEntryScroll.updatePadding(bottom = (80 * resources.displayMetrics.density).toInt())
+            // Adjust scroll view padding for navigation bar and to not be hidden by the button
+            binding.manualEntryScroll.setPadding(0, 0, 0, (80 * resources.displayMetrics.density).toInt() + systemBars.bottom)
 
             insets
         }
@@ -120,19 +123,14 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        binding.toolbarManualEntry.title = if (editingProduct != null) getString(R.string.edit) else getString(R.string.add_product)
-        
-        // Ensure back arrow is shown correctly with theme-aware color
-        val backArrow = androidx.appcompat.content.res.AppCompatResources.getDrawable(this, R.drawable.ic_back)
-        backArrow?.let {
-            val color = if (ThemeManager.isDarkMode(this)) android.graphics.Color.WHITE else android.graphics.Color.BLACK
-            androidx.core.graphics.drawable.DrawableCompat.setTint(it, color)
-            binding.toolbarManualEntry.navigationIcon = it
-        }
+        updateToolbarTitle()
 
-        binding.toolbarManualEntry.setNavigationOnClickListener { finish() }
         binding.toolbarManualEntry.setOnMenuItemClickListener { item ->
             when (item.itemId) {
+                R.id.action_cancel -> {
+                    finish()
+                    true
+                }
                 R.id.action_clear -> {
                     com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                         .setTitle("Reset Form")
@@ -144,6 +142,14 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
                 }
                 else -> false
             }
+        }
+    }
+
+    private fun updateToolbarTitle() {
+        binding.toolbarManualEntry.title = when {
+            editingProduct != null -> getString(R.string.edit_product)
+            !productBarcode.isNullOrBlank() || !selectedImageUri.isNullOrBlank() -> getString(R.string.save_product)
+            else -> getString(R.string.add_product)
         }
     }
 
@@ -358,7 +364,6 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
         productBarcode = intent.getStringExtra("barcode") ?: editingProduct?.barcode
 
         editingProduct?.let { product ->
-            binding.toolbarManualEntry.title = getString(R.string.edit)
             binding.editTextProductName.setText(product.name)
             binding.editTextBrand.setText(product.brand)
             product.expirationDate?.let { setExpiryFromMillis(it) }
@@ -368,6 +373,8 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
             selectedWeightUnit = product.weightUnit
             binding.spinnerWeightUnit.setText(product.weightUnit, false)
         }
+
+        updateToolbarTitle()
 
         if (!productBarcode.isNullOrBlank()) {
             binding.textViewBarcodeValue.text = getString(R.string.barcode_with_value, productBarcode)
@@ -398,25 +405,39 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
     }
 
     private fun resetForm() {
-        if (editingProduct != null) {
-            loadProductData()
-        } else {
-            binding.editTextProductName.text?.clear()
-            binding.editTextBrand.text?.clear()
-            binding.editTextQuantity.text?.clear()
-            binding.editTextWeight.text?.clear()
-            binding.checkboxFavorite.isChecked = false
-            expiryMillis = null
-            binding.expiryDateWheel.textSelectedExpiryDate.text = getString(R.string.expiry_date_not_set)
-            binding.expiryDateWheel.editTextExpiryDate.text?.clear()
-            // Reset pickers to today
-            val today = Calendar.getInstance()
-            setPickersFromMillis(today.timeInMillis)
-            
-            selectedImageUri = null
-            binding.imageProductPreview.setImageResource(R.drawable.ic_placeholder)
-        }
-        Toast.makeText(this, "Form reset", Toast.LENGTH_SHORT).show()
+        // Clear text fields
+        binding.editTextProductName.text?.clear()
+        binding.editTextBrand.text?.clear()
+        binding.editTextQuantity.text?.clear()
+        binding.editTextWeight.text?.clear()
+        binding.checkboxFavorite.isChecked = false
+        
+        // Reset expiry
+        expiryMillis = null
+        binding.expiryDateWheel.textSelectedExpiryDate.text = getString(R.string.expiry_date_not_set)
+        binding.expiryDateWheel.editTextExpiryDate.text?.clear()
+        val today = Calendar.getInstance()
+        setPickersFromMillis(today.timeInMillis)
+        
+        // Clear image
+        selectedImageUri = null
+        binding.imageProductPreview.setImageResource(R.drawable.ic_placeholder)
+        
+        // Clear barcode
+        productBarcode = null
+        binding.textViewBarcodeValue.text = ""
+        binding.textViewBarcodeValue.visibility = View.GONE
+        
+        // Reset errors
+        binding.layoutProductName.error = null
+        binding.layoutQuantity.error = null
+        binding.layoutWeight.error = null
+        binding.expiryDateWheel.textExpiryDateError.visibility = View.GONE
+        
+        // Update title (will likely revert to "Add Product")
+        updateToolbarTitle()
+        
+        Toast.makeText(this, "All fields cleared", Toast.LENGTH_SHORT).show()
     }
 
     private fun saveProduct() {

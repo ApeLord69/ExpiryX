@@ -11,25 +11,19 @@
         android:id="@+id/appBarManualEntry"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        app:elevation="0dp">
+        android:background="@drawable/header_background"
+        app:elevation="2dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbarManualEntry"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
-            app:navigationIcon="@drawable/ic_back"
-            app:title="Add Product"
+            android:background="@android:color/transparent"
+            app:title="Manual Entry"
             app:titleCentered="false"
             app:titleTextColor="?attr/colorOnSurface"
             app:titleTextAppearance="?attr/textAppearanceTitleLarge"
             app:menu="@menu/menu_manual_entry" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@drawable/nav_separator" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

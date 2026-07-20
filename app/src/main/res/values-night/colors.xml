@@ -5,5 +5,8 @@
     <color name="teal_700">#FF26A69A</color>
     <color name="your_teal_color">#FF4DB6AC</color>
     <color name="your_teal_color_light">#1A3A36</color>
+    <color name="special_card_bg">#3D3500</color>
+    <color name="special_card_stroke">#FFD700</color>
+    <color name="special_card_text">#FFFFFF</color>
     <color name="settings_card_border">#3A3A3A</color>
 </resources>

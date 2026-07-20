@@ -2,7 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_cancel"
+        android:icon="@drawable/ic_close"
+        android:title="@string/cancel"
+        app:iconTint="?attr/colorOnSurface"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_clear"
         android:title="@string/clear_all"
-        app:showAsAction="always" />
+        app:showAsAction="never" />
 </menu>

@@ -54,6 +54,9 @@
     <color name="header_deleted">#9E9E9E</color>
     <color name="gold">#FFD700</color>
     <color name="light_gold">#FFF8DC</color>
+    <color name="special_card_bg">#FFF8DC</color>
+    <color name="special_card_stroke">#FFD700</color>
+    <color name="special_card_text">#000000</color>
     <color name="settings_card_border">#E0E0E0</color>
 
     <!-- Status / grouping colors (unchanged) -->

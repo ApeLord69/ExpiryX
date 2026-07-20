@@ -59,7 +59,27 @@
     <style name="SettingsIcon">
         <item name="android:layout_width">24dp</item>
         <item name="android:layout_height">24dp</item>
-        <item name="android:tint">@color/white</item>
+        <item name="android:tint">?attr/colorOnPrimary</item>
+    </style>
+
+    <style name="SettingsIconNoTint">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+    </style>
+
+    <style name="SpecialSettingsCard" parent="SettingsCard">
+        <item name="cardBackgroundColor">@color/special_card_bg</item>
+        <item name="strokeColor">@color/special_card_stroke</item>
+        <item name="strokeWidth">2dp</item>
+    </style>
+
+    <style name="SpecialSettingsTitle" parent="SettingsTitle">
+        <item name="android:textColor">@color/special_card_text</item>
+    </style>
+
+    <style name="SpecialSettingsSubtitle" parent="SettingsSubtitle">
+        <item name="android:textColor">@color/special_card_text</item>
+        <item name="android:alpha">0.7</item>
     </style>
 
     <style name="SettingsIconContainer">

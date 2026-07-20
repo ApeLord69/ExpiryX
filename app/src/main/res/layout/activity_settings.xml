@@ -75,7 +75,7 @@
 
                         <ImageView
                             android:id="@+id/user_profile_image"
-                            style="@style/SettingsIcon"
+                            style="@style/SettingsIconNoTint"
                             android:src="@drawable/ic_google_logo"
                             app:tint="@null"/>
                     </LinearLayout>
@@ -127,8 +127,7 @@
 
                         <ImageView
                             style="@style/SettingsIcon"
-                            android:src="@drawable/ic_sync"
-                            app:tint="@color/white"/>
+                            android:src="@drawable/ic_sync"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -175,8 +174,7 @@
 
                         <ImageView
                             style="@style/SettingsIcon"
-                            android:src="@drawable/ic_notifications"
-                            app:tint="@color/white"/>
+                            android:src="@drawable/ic_notifications"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -258,8 +256,7 @@
 
                         <ImageView
                             style="@style/SettingsIcon"
-                            android:src="@drawable/ic_dark_mode"
-                            app:tint="@color/white"/>
+                            android:src="@drawable/ic_dark_mode"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -328,8 +325,7 @@
                         android:backgroundTint="?attr/colorPrimary">
                         <ImageView
                             style="@style/SettingsIcon"
-                            android:src="@drawable/ic_palette"
-                            app:tint="@color/white"/>
+                            android:src="@drawable/ic_palette"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -368,8 +364,7 @@
                         android:backgroundTint="?attr/colorPrimary">
                         <ImageView
                             style="@style/SettingsIcon"
-                            android:src="@drawable/ic_star"
-                            app:tint="@color/white"/>
+                            android:src="@drawable/ic_star"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -415,8 +410,7 @@
 
                         <ImageView
                             style="@style/SettingsIcon"
-                            android:src="@drawable/ic_export"
-                            app:tint="@color/white"/>
+                            android:src="@drawable/ic_export"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -451,7 +445,6 @@
                         <ImageView
                             style="@style/SettingsIcon"
                             android:src="@drawable/ic_sync"
-                            app:tint="@color/white"
                             android:rotation="180"/>
                     </LinearLayout>
 
@@ -488,8 +481,7 @@
 
                         <ImageView
                             style="@style/SettingsIcon"
-                            android:src="@drawable/ic_delete"
-                            app:tint="@color/white"/>
+                            android:src="@drawable/ic_delete"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -513,12 +505,9 @@
             <!-- Donate -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/donate_card"
-                style="@style/SettingsCard"
+                style="@style/SpecialSettingsCard"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="6dp"
-                app:cardBackgroundColor="@color/light_gold"
-                app:strokeColor="@color/gold"
-                app:strokeWidth="2dp">
+                android:layout_marginTop="6dp">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -532,8 +521,7 @@
 
                         <ImageView
                             style="@style/SettingsIcon"
-                            android:src="@drawable/ic_fav_filled"
-                            app:tint="@color/white" />
+                            android:src="@drawable/ic_fav_filled"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -541,8 +529,8 @@
                         android:layout_toEndOf="@id/donate_icon_container"
                         android:layout_alignParentEnd="true">
 
-                        <TextView style="@style/SettingsTitle" android:text="Donate" />
-                        <TextView style="@style/SettingsSubtitle" android:text="Support development of ExpiryX" />
+                        <TextView style="@style/SpecialSettingsTitle" android:text="Donate" />
+                        <TextView style="@style/SpecialSettingsSubtitle" android:text="Support development of ExpiryX" />
                     </LinearLayout>
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -550,13 +538,10 @@
             <!-- Rate this App -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/rate_card"
-                style="@style/SettingsCard"
+                style="@style/SpecialSettingsCard"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="6dp"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/light_gold"
-                app:strokeColor="@color/gold"
-                app:strokeWidth="2dp">
+                android:layout_marginBottom="16dp">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -570,8 +555,7 @@
 
                         <ImageView
                             style="@style/SettingsIcon"
-                            android:src="@drawable/ic_star"
-                            app:tint="@color/white" />
+                            android:src="@drawable/ic_star"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -579,8 +563,8 @@
                         android:layout_toEndOf="@id/rate_icon_container"
                         android:layout_alignParentEnd="true">
 
-                        <TextView style="@style/SettingsTitle" android:text="Rate this App" />
-                        <TextView style="@style/SettingsSubtitle" android:text="Leave a review on Google Play" />
+                        <TextView style="@style/SpecialSettingsTitle" android:text="Rate this App" />
+                        <TextView style="@style/SpecialSettingsSubtitle" android:text="Leave a review on Google Play" />
                     </LinearLayout>
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>

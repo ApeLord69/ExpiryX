@@ -62,16 +62,11 @@ class HistoryActivity : ThemedAppCompatActivity() {
             context = this,
             leftLabel = "Restore",
             leftColor = android.graphics.Color.parseColor("#4CAF50"),
-            leftIconRes = R.drawable.ic_redo,
+            leftIconRes = R.drawable.ic_history,
             rightLabel = "Delete",
             rightColor = android.graphics.Color.parseColor("#F44336"),
             rightIconRes = R.drawable.ic_delete,
             onSwipeLeft = { position ->
-                val h = adapter.currentList[position]
-                viewModel.restoreDeleted(h)
-                Toast.makeText(this, "Restored", Toast.LENGTH_SHORT).show()
-            },
-            onSwipeRight = { position ->
                 val h = adapter.currentList[position]
                 MaterialAlertDialogBuilder(this)
                     .setTitle(getString(R.string.history_permanently_delete_title))
@@ -80,6 +75,10 @@ class HistoryActivity : ThemedAppCompatActivity() {
                     .setNegativeButton(getString(R.string.cancel)) { _, _ -> adapter.notifyItemChanged(position) }
                     .setOnCancelListener { adapter.notifyItemChanged(position) }
                     .show()
+            },
+            onSwipeRight = { position ->
+                val h = adapter.currentList[position]
+                handleRestore(h)
             }
         )
         androidx.recyclerview.widget.ItemTouchHelper(swipeHandler).attachToRecyclerView(binding.recyclerHistory)
@@ -106,6 +105,41 @@ class HistoryActivity : ThemedAppCompatActivity() {
                 binding.topBar.paddingBottom
             )
             insets
+        }
+    }
+
+    private fun handleRestore(h: History) {
+        when (h.action) {
+            "Expired" -> {
+                // For expired, we show a date picker to choose a new expiry before restoring
+                val cal = Calendar.getInstance()
+                android.app.DatePickerDialog(
+                    this,
+                    { _, y, m, d ->
+                        val calendar = Calendar.getInstance().apply { set(y, m, d, 23, 59, 59); set(Calendar.MILLISECOND, 999) }
+                        viewModel.changeExpiry(h, calendar.timeInMillis)
+                        Toast.makeText(this, getString(R.string.history_toast_restored), Toast.LENGTH_SHORT).show()
+                    },
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH),
+                    cal.get(Calendar.DAY_OF_MONTH)
+                ).show()
+                // We need to notify the adapter that the item didn't actually vanish yet if they cancel the picker
+                // but actually the swipe is done. It's better to refresh list.
+                adapter.notifyItemChanged(fullList.indexOf(h))
+            }
+            "Used" -> {
+                viewModel.unuse(h)
+                Toast.makeText(this, "Restored to Home", Toast.LENGTH_SHORT).show()
+            }
+            "Deleted" -> {
+                viewModel.restoreDeleted(h)
+                Toast.makeText(this, "Restored to Home", Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                viewModel.restoreDeleted(h)
+                Toast.makeText(this, "Restored", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

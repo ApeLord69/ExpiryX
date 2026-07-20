@@ -133,6 +133,7 @@
     <string name="search_products_hint">Search products…</string>
     <string name="empty_state_icon">Empty state</string>
     <string name="add_product">Add Product</string>
+    <string name="edit_product">Edit Product</string>
     <string name="edit">Edit</string>
     <string name="mark_as_used">Used</string>
     <string name="delete">Delete</string>
@@ -196,6 +197,7 @@
     <string name="error_expiry_date_required">Expiry date is required</string>
 
     <!-- Accessibility -->
+    <string name="accessibility_title">ACCESSIBILITY</string>
     <string name="clear_all">Clear All</string>
     <string name="clear_fields_confirm">Are you sure you want to clear all fields?</string>
     <string name="high_contrast_title">Increase Text Contrast</string>

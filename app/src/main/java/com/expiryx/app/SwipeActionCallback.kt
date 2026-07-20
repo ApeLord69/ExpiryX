@@ -25,7 +25,7 @@ class SwipeActionCallback(
     private val paint = Paint()
     private val textPaint = Paint().apply {
         color = Color.WHITE
-        textSize = 40f
+        textSize = 32f
         isAntiAlias = true
         textAlign = Paint.Align.CENTER
         style = Paint.Style.FILL
@@ -60,8 +60,12 @@ class SwipeActionCallback(
         val itemView = viewHolder.itemView
         val itemHeight = itemView.bottom - itemView.top
         
+        // Target icon size (e.g. 24dp)
+        val density = context.resources.displayMetrics.density
+        val iconSize = (24 * density).toInt()
+
         if (dX < 0) { // Swiping Left
-            paint.color = leftColor
+            paint.color = rightColor
             val background = RectF(
                 itemView.right.toFloat() + dX,
                 itemView.top.toFloat(),
@@ -70,21 +74,21 @@ class SwipeActionCallback(
             )
             c.drawRect(background, paint)
 
-            leftIcon?.let {
-                val iconMargin = (itemHeight - it.intrinsicHeight) / 2
+            rightIcon?.let {
+                val iconMargin = (itemHeight - (iconSize + 40)) / 2
                 val iconTop = itemView.top + iconMargin
-                val iconBottom = iconTop + it.intrinsicHeight
-                val iconRight = itemView.right - iconMargin
-                val iconLeft = iconRight - it.intrinsicWidth
-                it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                val iconBottom = iconTop + iconSize
+                val iconRight = itemView.right - (16 * density)
+                val iconLeft = iconRight - iconSize
+                it.setBounds(iconLeft.toInt(), iconTop.toInt(), iconRight.toInt(), iconBottom.toInt())
                 it.setTint(Color.WHITE)
                 it.draw(c)
                 
-                c.drawText(leftLabel, (iconLeft + iconRight) / 2f, iconBottom + 25f, textPaint)
+                c.drawText(rightLabel, (iconLeft + iconRight) / 2f, iconBottom + 30f, textPaint)
             }
 
         } else if (dX > 0) { // Swiping Right
-            paint.color = rightColor
+            paint.color = leftColor
             val background = RectF(
                 itemView.left.toFloat(),
                 itemView.top.toFloat(),
@@ -93,17 +97,17 @@ class SwipeActionCallback(
             )
             c.drawRect(background, paint)
 
-            rightIcon?.let {
-                val iconMargin = (itemHeight - it.intrinsicHeight) / 2
+            leftIcon?.let {
+                val iconMargin = (itemHeight - (iconSize + 40)) / 2
                 val iconTop = itemView.top + iconMargin
-                val iconBottom = iconTop + it.intrinsicHeight
-                val iconLeft = itemView.left + iconMargin
-                val iconRight = iconLeft + it.intrinsicWidth
-                it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                val iconBottom = iconTop + iconSize
+                val iconLeft = itemView.left + (16 * density)
+                val iconRight = iconLeft + iconSize
+                it.setBounds(iconLeft.toInt(), iconTop.toInt(), iconRight.toInt(), iconBottom.toInt())
                 it.setTint(Color.WHITE)
                 it.draw(c)
                 
-                c.drawText(rightLabel, (iconLeft + iconRight) / 2f, iconBottom + 25f, textPaint)
+                c.drawText(leftLabel, (iconLeft + iconRight) / 2f, iconBottom + 30f, textPaint)
             }
         }
 
