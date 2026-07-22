@@ -24,12 +24,9 @@ class LoginActivity : ThemedAppCompatActivity() {
     
     private val auth: FirebaseAuth? by lazy {
         try {
-            if (FirebaseApp.getApps(this).isNotEmpty()) {
-                FirebaseAuth.getInstance()
-            } else {
-                null
-            }
+            FirebaseAuth.getInstance()
         } catch (e: Exception) {
+            Log.e("LoginActivity", "Failed to get FirebaseAuth instance", e)
             null
         }
     }
@@ -52,12 +49,22 @@ class LoginActivity : ThemedAppCompatActivity() {
                 firebaseAuthWithGoogle(idToken)
             } catch (e: ApiException) {
                 setLoading(false)
-                Log.e("LoginActivity", "Google sign in failed", e)
-                Toast.makeText(this, getString(R.string.error_google_sign_in_failed, e.message), Toast.LENGTH_SHORT).show()
+                Log.e("LoginActivity", "Google sign in failed code=${e.statusCode}", e)
+                val msg = when(e.statusCode) {
+                    7 -> "Network Error"
+                    10 -> "Developer Error (Check SHA-1 in Firebase)"
+                    12500 -> "Sign-in Failed (Check configuration)"
+                    12501 -> "Sign-in Cancelled"
+                    else -> e.message ?: "Unknown error"
+                }
+                Toast.makeText(this, "Google sign in failed: $msg", Toast.LENGTH_LONG).show()
             }
         } else {
             setLoading(false)
-            Log.w("LoginActivity", "Sign-in cancelled or failed with result code: ${result.resultCode}")
+            Log.w("LoginActivity", "Sign-in result not OK: ${result.resultCode}")
+            if (result.resultCode != RESULT_CANCELED) {
+                Toast.makeText(this, "Sign-in failed (result=${result.resultCode})", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -82,8 +89,14 @@ class LoginActivity : ThemedAppCompatActivity() {
         setContentView(R.layout.activity_login)
         progressBar = findViewById(R.id.progressBarLogin)
 
+        if (auth == null) {
+            Log.e("LoginActivity", "FirebaseAuth is null!")
+            Toast.makeText(this, "Firebase initialization error", Toast.LENGTH_LONG).show()
+        }
+
         // Configure Google Sign In
         val gso = try {
+            Log.d("LoginActivity", "Configuring GoogleSignInOptions")
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -93,13 +106,20 @@ class LoginActivity : ThemedAppCompatActivity() {
             null
         }
 
+        if (gso == null) {
+            Log.e("LoginActivity", "GSO is null, sign-in will not work")
+        }
+
         googleSignInClient = gso?.let { GoogleSignIn.getClient(this, it) }
 
         findViewById<Button>(R.id.buttonGoogleSignIn).setOnClickListener {
+            Log.d("LoginActivity", "Google Sign-In button clicked")
             googleSignInClient?.let {
+                Log.d("LoginActivity", "Launching sign-in intent")
                 setLoading(true)
                 signInLauncher.launch(it.signInIntent)
             } ?: run {
+                Log.e("LoginActivity", "googleSignInClient is null")
                 Toast.makeText(this, "Google Sign-In is currently unavailable.", Toast.LENGTH_SHORT).show()
             }
         }
@@ -140,6 +160,7 @@ class LoginActivity : ThemedAppCompatActivity() {
     }
 
     private fun navigateToMain() {
+        Log.d("LoginActivity", "Navigating to MainActivity")
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)

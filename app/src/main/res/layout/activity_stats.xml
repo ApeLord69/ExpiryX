@@ -105,32 +105,12 @@
             android:paddingHorizontal="16dp"
             android:paddingTop="12dp">
 
-            <LinearLayout
+            <include
                 android:id="@+id/emptyStateLayout"
+                layout="@layout/layout_empty_state"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingVertical="48dp"
-                android:visibility="gone">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stats_empty_title"
-                    android:textColor="?attr/colorOnBackground"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center"
-                    android:text="@string/stats_empty_subtitle"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp" />
-            </LinearLayout>
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/statsContentLayout"

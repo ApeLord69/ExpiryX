@@ -36,6 +36,7 @@ class MainActivity : ThemedAppCompatActivity() {
     private var allProducts: List<Product> = emptyList()
     private var pendingActions = mutableSetOf<String>() // Set of UUIDs being "undone"
     private var showFavoritesOnly = false
+    private var currentSearchQuery: String = ""
 
     enum class SortMode {
         EXPIRY_ASC, EXPIRY_DESC,
@@ -95,11 +96,17 @@ class MainActivity : ThemedAppCompatActivity() {
     private fun setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.rootCoordinator) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val bottomInset = maxOf(systemBars.bottom, imeInsets.bottom)
 
             binding.topBar.updatePadding(top = systemBars.top)
 
-            // Padding for the list so last items aren't hidden by FAB
-            binding.recyclerProducts.updatePadding(bottom = 100)
+            // Ensure FAB and Recycler don't overlap with navigation/keyboard
+            val fabPadding = (88 * resources.displayMetrics.density).toInt()
+            binding.recyclerProducts.updatePadding(bottom = fabPadding + bottomInset)
+            
+            // For the empty state, we want the content to be pushed up above the keyboard
+            binding.emptyStateLayout.root.updatePadding(bottom = bottomInset)
 
             insets
         }
@@ -206,15 +213,8 @@ class MainActivity : ThemedAppCompatActivity() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String?): Boolean {
-                val filtered = if (!newText.isNullOrBlank()) {
-                    val queryText = newText.lowercase(Locale.getDefault())
-                    allProducts.filter { product ->
-                        product.name.lowercase(Locale.getDefault()).contains(queryText) ||
-                            (product.brand?.lowercase(Locale.getDefault())?.contains(queryText) ?: false) ||
-                            (product.barcode?.lowercase(Locale.getDefault())?.contains(queryText) ?: false)
-                    }
-                } else allProducts
-                updateList(filtered, fromSearch = !newText.isNullOrBlank())
+                currentSearchQuery = newText.orEmpty()
+                refreshList()
                 return true
             }
         })
@@ -272,7 +272,19 @@ class MainActivity : ThemedAppCompatActivity() {
 
     private fun refreshList() {
         var list = allProducts.filter { !pendingActions.contains(it.uuid) }
-        if (showFavoritesOnly) list = list.filter { it.isFavorite }
+        
+        if (showFavoritesOnly) {
+            list = list.filter { it.isFavorite }
+        }
+
+        if (currentSearchQuery.isNotBlank()) {
+            val queryText = currentSearchQuery.lowercase(Locale.getDefault())
+            list = list.filter { product ->
+                product.name.lowercase(Locale.getDefault()).contains(queryText) ||
+                        (product.brand?.lowercase(Locale.getDefault())?.contains(queryText) ?: false) ||
+                        (product.barcode?.lowercase(Locale.getDefault())?.contains(queryText) ?: false)
+            }
+        }
 
         list = when (sortMode) {
             SortMode.ALPHA_AZ -> list.sortedBy { it.name.lowercase(Locale.getDefault()) }
@@ -288,36 +300,40 @@ class MainActivity : ThemedAppCompatActivity() {
             SortMode.ADDED_DESC -> list.sortedByDescending { it.dateAdded }
         }
 
-        val isSearching = !binding.searchView.query.isNullOrEmpty()
-        updateList(list, fromSearch = isSearching)
+        updateList(list)
     }
 
-    private fun updateList(products: List<Product>, fromSearch: Boolean = false) {
-        if (allProducts.isEmpty() && !fromSearch) {
+    private fun updateList(products: List<Product>) {
+        val emptyState = binding.emptyStateLayout
+
+        // Priority 1: Base state (No products at all in the database, excluding pending deletes)
+        if (allProducts.none { !pendingActions.contains(it.uuid) }) {
             binding.recyclerProducts.visibility = View.GONE
-            binding.emptyStateContainer.visibility = View.VISIBLE
-            binding.emptyStateImage.setImageResource(R.drawable.ic_placeholder)
-            binding.emptyStateTitle.text = getString(R.string.empty_fridge_title)
-            binding.emptyStateSubtitle.text = getString(R.string.empty_fridge_subtitle)
-        } else if (products.isEmpty()) {
+            emptyState.root.visibility = View.VISIBLE
+            emptyState.emptyStateIcon.setImageResource(R.drawable.ic_big_plus)
+            emptyState.emptyStateTitle.text = getString(R.string.empty_fridge_title)
+            emptyState.emptyStateSubtitle.text = getString(R.string.empty_fridge_subtitle)
+            return
+        }
+
+        // Priority 2: Filter/Search state (Results are empty due to filtering)
+        if (products.isEmpty()) {
             binding.recyclerProducts.visibility = View.GONE
-            binding.emptyStateContainer.visibility = View.VISIBLE
-            binding.emptyStateImage.setImageResource(
-                if (showFavoritesOnly) R.drawable.ic_heart_unfilled else R.drawable.ic_search_unfilled
-            )
-            binding.emptyStateTitle.text = if (showFavoritesOnly) {
-                getString(R.string.empty_state_title_no_favorites)
+            emptyState.root.visibility = View.VISIBLE
+            
+            if (showFavoritesOnly && allProducts.none { it.isFavorite && !pendingActions.contains(it.uuid) }) {
+                emptyState.emptyStateIcon.setImageResource(R.drawable.ic_heart_unfilled)
+                emptyState.emptyStateTitle.text = getString(R.string.empty_state_title_no_favorites)
+                emptyState.emptyStateSubtitle.text = getString(R.string.empty_state_subtitle_no_favorites)
             } else {
-                getString(R.string.empty_state_title_no_results)
-            }
-            binding.emptyStateSubtitle.text = if (showFavoritesOnly) {
-                getString(R.string.empty_state_subtitle_no_favorites)
-            } else {
-                getString(R.string.empty_state_subtitle_no_results)
+                emptyState.emptyStateIcon.setImageResource(R.drawable.ic_search_unfilled)
+                emptyState.emptyStateTitle.text = getString(R.string.empty_state_title_no_results)
+                emptyState.emptyStateSubtitle.text = getString(R.string.empty_state_subtitle_no_results)
             }
         } else {
+            // Priority 3: Show data
             binding.recyclerProducts.visibility = View.VISIBLE
-            binding.emptyStateContainer.visibility = View.GONE
+            emptyState.root.visibility = View.GONE
             adapter.updateData(products, sortMode)
         }
     }

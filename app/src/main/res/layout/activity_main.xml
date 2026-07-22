@@ -211,41 +211,12 @@
                 android:paddingBottom="80dp"
                 android:visibility="gone" />
 
-            <LinearLayout
-                android:id="@+id/emptyStateContainer"
+            <include
+                android:id="@+id/emptyStateLayout"
+                layout="@layout/layout_empty_state"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="24dp"
-                android:visibility="gone">
-
-                <ImageView
-                    android:id="@+id/emptyStateImage"
-                    android:layout_width="160dp"
-                    android:layout_height="160dp"
-                    android:contentDescription="@string/empty_state_icon"
-                    android:src="@drawable/ic_placeholder"
-                    android:layout_marginBottom="12dp" />
-
-                <TextView
-                    android:id="@+id/emptyStateTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/empty_fridge_title"
-                    android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                    android:textColor="?attr/colorOnBackground" />
-
-                <TextView
-                    android:id="@+id/emptyStateSubtitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center"
-                    android:text="@string/empty_fridge_subtitle"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
-            </LinearLayout>
+                android:visibility="gone" />
         </FrameLayout>
     </LinearLayout>
 

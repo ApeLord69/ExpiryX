@@ -2,9 +2,9 @@ package com.expiryx.app
 
 import android.content.Context
 import android.util.Log
+import androidx.core.content.edit
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentChange
@@ -18,24 +18,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
+@Suppress("DEPRECATION")
 object AccountManager {
     private const val TAG = "AccountManager"
     
     private var productsListener: ListenerRegistration? = null
     private var historyListener: ListenerRegistration? = null
 
-    // Flag to prevent local changes triggered by remote sync from being pushed back
-    @Volatile
-    var isApplyingRemoteChange = false
+    // Counter to prevent local changes triggered by remote sync from being pushed back
+    private val remoteChangeCounter = java.util.concurrent.atomic.AtomicInteger(0)
+    val isApplyingRemoteChange: Boolean get() = remoteChangeCounter.get() > 0
 
     private val auth: FirebaseAuth? by lazy {
         try {
-            if (FirebaseApp.getApps(ProductApplication.instance).isNotEmpty()) {
-                FirebaseAuth.getInstance()
-            } else {
-                Log.w(TAG, "Firebase Auth skipped: FirebaseApp not initialized.")
-                null
-            }
+            FirebaseAuth.getInstance()
         } catch (e: Exception) {
             Log.e(TAG, "Firebase Auth initialization error", e)
             null
@@ -44,12 +40,7 @@ object AccountManager {
 
     private val firestore: FirebaseFirestore? by lazy {
         try {
-            if (FirebaseApp.getApps(ProductApplication.instance).isNotEmpty()) {
-                FirebaseFirestore.getInstance()
-            } else {
-                Log.w(TAG, "Firestore skipped: FirebaseApp not initialized.")
-                null
-            }
+            FirebaseFirestore.getInstance()
         } catch (e: Exception) {
             Log.e(TAG, "Firestore initialization error", e)
             null
@@ -92,7 +83,7 @@ object AccountManager {
 
     fun setWelcomeScreenPassed(context: Context, passed: Boolean) {
         context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-            .edit().putBoolean("welcomeScreenPassed", passed).apply()
+            .edit { putBoolean("welcomeScreenPassed", passed) }
     }
     
     fun startSync(context: Context) {
@@ -146,7 +137,7 @@ object AccountManager {
     }
 
     private suspend fun processProductChanges(changes: List<DocumentChange>, repo: ProductRepository) {
-        isApplyingRemoteChange = true
+        remoteChangeCounter.incrementAndGet()
         try {
             val localProducts = repo.getAllProductsNow()
             for (dc in changes) {
@@ -173,12 +164,12 @@ object AccountManager {
         } catch (e: Exception) {
             Log.e(TAG, "Error processing remote product changes", e)
         } finally {
-            isApplyingRemoteChange = false
+            remoteChangeCounter.decrementAndGet()
         }
     }
 
     private suspend fun processHistoryChanges(changes: List<DocumentChange>, repo: ProductRepository) {
-        isApplyingRemoteChange = true
+        remoteChangeCounter.incrementAndGet()
         try {
             val localHistory = repo.getAllHistoryNow()
             for (dc in changes) {
@@ -202,7 +193,7 @@ object AccountManager {
         } catch (e: Exception) {
             Log.e(TAG, "Error processing remote history changes", e)
         } finally {
-            isApplyingRemoteChange = false
+            remoteChangeCounter.decrementAndGet()
         }
     }
 

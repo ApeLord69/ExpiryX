@@ -166,9 +166,16 @@ class StatsActivity : ThemedAppCompatActivity() {
     private fun observeStats() {
         viewModel.statsState.observe(this) { state ->
             updateTimeRangeSelection(state.timeRange)
-            binding.emptyStateLayout.visibility = if (state.isEmpty) View.VISIBLE else View.GONE
+            val emptyState = binding.emptyStateLayout
+            emptyState.root.visibility = if (state.isEmpty) View.VISIBLE else View.GONE
             binding.statsContentLayout.visibility = if (state.isEmpty) View.GONE else View.VISIBLE
-            if (state.isEmpty) return@observe
+            
+            if (state.isEmpty) {
+                emptyState.emptyStateIcon.setImageResource(R.drawable.ic_stats_unfilled)
+                emptyState.emptyStateTitle.text = getString(R.string.stats_empty_title)
+                emptyState.emptyStateSubtitle.text = getString(R.string.stats_empty_subtitle)
+                return@observe
+            }
 
             bindKpiCards(state)
             bindSecondaryStats(state)

@@ -113,21 +113,59 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layoutQuantity"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:hint="@string/quantity_hint_default">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/editTextQuantity"
-                        android:layout_width="match_parent"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutQuantity"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:maxLines="1" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_weight="1"
+                        android:hint="@string/quantity_hint_default">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/editTextQuantity"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnMinusQuantity"
+                        style="@style/Widget.Material3.Button.IconButton.Outlined"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="@string/decrease_quantity"
+                        app:icon="@drawable/ic_minus"
+                        app:iconSize="24dp"
+                        app:iconPadding="0dp"
+                        app:iconGravity="textStart"
+                        app:iconTint="?attr/colorPrimary"
+                        app:strokeColor="?attr/colorOutline"
+                        app:cornerRadius="24dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPlusQuantity"
+                        style="@style/Widget.Material3.Button.IconButton.Outlined"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="@string/increase_quantity"
+                        app:icon="@drawable/ic_big_plus"
+                        app:iconSize="24dp"
+                        app:iconPadding="0dp"
+                        app:iconGravity="textStart"
+                        app:iconTint="?attr/colorPrimary"
+                        app:strokeColor="?attr/colorOutline"
+                        app:cornerRadius="24dp" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"

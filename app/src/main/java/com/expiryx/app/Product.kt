@@ -20,6 +20,7 @@ data class Product(
     @ColumnInfo(name = "weight") val weight: Int? = null, // Explicit ColumnInfo
     val weightUnit: String = "g", // "g" for grams or "ml" for milliliters
     val imageUri: String? = null,
+    val reminderDays: Int = 3,
     val isFavorite: Boolean = false,
     val barcode: String? = null, // Barcode from scanning or image upload
     val isSnoozed: Boolean = false, // Whether notifications for this item are muted

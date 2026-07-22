@@ -98,12 +98,25 @@ class HistoryActivity : ThemedAppCompatActivity() {
     private fun setupWindowInsets() {
         androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            val imeInsets = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime())
+            val bottomInset = maxOf(systemBars.bottom, imeInsets.bottom)
+
             binding.topBar.setPadding(
                 binding.topBar.paddingLeft,
                 systemBars.top,
                 binding.topBar.paddingRight,
                 binding.topBar.paddingBottom
             )
+
+            // Ensure empty state and recycler aren't hidden by keyboard
+            binding.recyclerHistory.setPadding(
+                binding.recyclerHistory.paddingLeft,
+                binding.recyclerHistory.paddingTop,
+                binding.recyclerHistory.paddingRight,
+                (80 * resources.displayMetrics.density).toInt() + bottomInset
+            )
+            binding.emptyStateLayoutHistory.root.setPadding(0, 0, 0, bottomInset)
+
             insets
         }
     }
@@ -364,29 +377,41 @@ class HistoryActivity : ThemedAppCompatActivity() {
         binding.countersLayout.visibility = if (isSearching) View.GONE else View.VISIBLE
         binding.layoutSortHistoryInclude.root.visibility = if (isSearching) View.GONE else View.VISIBLE
 
+        val emptyState = binding.emptyStateLayoutHistory
+        
+        // Priority 1: Base state (No history at all)
+        if (fullList.isEmpty()) {
+            binding.recyclerHistory.visibility = View.GONE
+            emptyState.root.visibility = View.VISIBLE
+            emptyState.emptyStateIcon.setImageResource(R.drawable.ic_clock_unfilled)
+            emptyState.emptyStateTitle.text = getString(R.string.empty_history_title)
+            emptyState.emptyStateSubtitle.text = getString(R.string.empty_history_subtitle)
+            return
+        }
+
         if (hasResults) {
             binding.recyclerHistory.visibility = View.VISIBLE
-            binding.historyPlaceholder.visibility = View.GONE
-            binding.historyNoResults.visibility = View.GONE
-            binding.historyNoFavourites.visibility = View.GONE
+            emptyState.root.visibility = View.GONE
         } else {
             binding.recyclerHistory.visibility = View.GONE
+            emptyState.root.visibility = View.VISIBLE
 
             when {
-                searchQuery.isNotEmpty() -> {
-                    binding.historyNoResults.visibility = View.VISIBLE
-                    binding.historyPlaceholder.visibility = View.GONE
-                    binding.historyNoFavourites.visibility = View.GONE
+                isSearching -> {
+                    emptyState.emptyStateIcon.setImageResource(R.drawable.ic_search_unfilled)
+                    emptyState.emptyStateTitle.text = getString(R.string.empty_state_title_no_results)
+                    emptyState.emptyStateSubtitle.text = getString(R.string.empty_state_subtitle_no_results)
                 }
                 onlyFavourites -> {
-                    binding.historyNoFavourites.visibility = View.VISIBLE
-                    binding.historyPlaceholder.visibility = View.GONE
-                    binding.historyNoResults.visibility = View.GONE
+                    emptyState.emptyStateIcon.setImageResource(R.drawable.ic_heart_unfilled)
+                    emptyState.emptyStateTitle.text = getString(R.string.empty_state_title_no_favorites)
+                    emptyState.emptyStateSubtitle.text = getString(R.string.empty_state_subtitle_no_favorites)
                 }
                 else -> {
-                    binding.historyPlaceholder.visibility = View.VISIBLE
-                    binding.historyNoResults.visibility = View.GONE
-                    binding.historyNoFavourites.visibility = View.GONE
+                    // This handles cases where items are filtered out by type but search is empty
+                    emptyState.emptyStateIcon.setImageResource(R.drawable.ic_search_unfilled)
+                    emptyState.emptyStateTitle.text = getString(R.string.empty_state_title_no_results)
+                    emptyState.emptyStateSubtitle.text = getString(R.string.empty_state_subtitle_no_matches)
                 }
             }
         }

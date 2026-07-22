@@ -1,10 +1,12 @@
 package com.expiryx.app
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import androidx.core.net.toUri
 import android.text.InputFilter
 import android.view.View
 import android.view.ViewGroup
@@ -63,7 +65,7 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
                 try {
                     contentResolver.takePersistableUriPermission(
                         it,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION,
                     )
                 } catch (_: SecurityException) { /* ignore */ }
                 selectedImageUri = it.toString()
@@ -91,6 +93,7 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
         setupKeyboardDismissal()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupKeyboardDismissal() {
         binding.root.setOnTouchListener { _, _ ->
             currentFocus?.let { view ->
@@ -105,17 +108,21 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
     private fun setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+            
+            // Use the maximum of system bar bottom or IME bottom to ensure content is visible
+            val bottomInset = maxOf(systemBars.bottom, imeInsets.bottom)
             
             // Apply top inset as padding to the AppBarLayout so it draws under the status bar
             binding.appBarManualEntry.setPadding(0, systemBars.top, 0, 0)
             
-            // Adjust save button margin for navigation bar
+            // Adjust save button margin for navigation bar or keyboard
             binding.btnSaveProduct.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = (16 * resources.displayMetrics.density).toInt() + systemBars.bottom
+                bottomMargin = (16 * resources.displayMetrics.density).toInt() + bottomInset
             }
 
-            // Adjust scroll view padding for navigation bar and to not be hidden by the button
-            binding.manualEntryScroll.setPadding(0, 0, 0, (80 * resources.displayMetrics.density).toInt() + systemBars.bottom)
+            // Adjust scroll view padding so content isn't hidden by the button or keyboard
+            binding.manualEntryScroll.setPadding(0, 0, 0, (80 * resources.displayMetrics.density).toInt() + bottomInset)
 
             insets
         }
@@ -146,18 +153,19 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
     }
 
     private fun updateToolbarTitle() {
+        val isEditExtra = intent.getBooleanExtra("isEdit", false)
         binding.toolbarManualEntry.title = when {
-            editingProduct != null -> getString(R.string.edit_product)
-            !productBarcode.isNullOrBlank() || !selectedImageUri.isNullOrBlank() -> getString(R.string.save_product)
+            (editingProduct != null && (isEditExtra || (editingProduct!!.id != 0))) -> getString(R.string.edit_product)
+            editingProduct != null -> getString(R.string.save_product)
             else -> getString(R.string.add_product)
         }
     }
 
     private fun setupFilters() {
-        binding.editTextProductName.filters = arrayOf(safeTextFilter, InputFilter.LengthFilter(50))
+        binding.editTextProductName.filters = arrayOf(safeTextFilter, InputFilter.LengthFilter(100))
         binding.editTextBrand.filters = arrayOf(safeTextFilter, InputFilter.LengthFilter(50))
-        binding.editTextQuantity.filters = arrayOf(InputFilter.LengthFilter(4))
-        binding.editTextWeight.filters = arrayOf(InputFilter.LengthFilter(5))
+        binding.editTextQuantity.filters = arrayOf(InputFilter.LengthFilter(3))
+        binding.editTextWeight.filters = arrayOf(InputFilter.LengthFilter(6))
     }
 
     private fun setupWeightUnitDropdown() {
@@ -177,7 +185,7 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
         val pickerYear = wheel.pickerYear
 
         val today = Calendar.getInstance()
-        val startYear = today.get(Calendar.YEAR)
+        val startYear = today[Calendar.YEAR]
         val endYear = startYear + 10
 
         pickerYear.minValue = startYear
@@ -187,10 +195,10 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
         pickerMonth.minValue = 0
         pickerMonth.maxValue = monthLabels.size - 1
         pickerMonth.displayedValues = monthLabels
-        pickerMonth.value = today.get(Calendar.MONTH)
+        pickerMonth.value = today[Calendar.MONTH]
 
         updateDayPickerMax(pickerDay, pickerMonth.value + 1, pickerYear.value)
-        pickerDay.value = today.get(Calendar.DAY_OF_MONTH).coerceAtMost(pickerDay.maxValue)
+        pickerDay.value = today[Calendar.DAY_OF_MONTH].coerceAtMost(pickerDay.maxValue)
 
         val listener = NumberPicker.OnValueChangeListener { _, _, _ ->
             if (isInternalUpdate) return@OnValueChangeListener
@@ -345,10 +353,10 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
         val wheel = binding.expiryDateWheel
 
         isInternalUpdate = true
-        wheel.pickerYear.value = calendar.get(Calendar.YEAR)
-        wheel.pickerMonth.value = calendar.get(Calendar.MONTH)
+        wheel.pickerYear.value = calendar[Calendar.YEAR]
+        wheel.pickerMonth.value = calendar[Calendar.MONTH]
         updateDayPickerMax(wheel.pickerDay, wheel.pickerMonth.value + 1, wheel.pickerYear.value)
-        wheel.pickerDay.value = calendar.get(Calendar.DAY_OF_MONTH)
+        wheel.pickerDay.value = calendar[Calendar.DAY_OF_MONTH]
         isInternalUpdate = false
     }
 
@@ -376,15 +384,17 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
 
         updateToolbarTitle()
 
-        if (!productBarcode.isNullOrBlank()) {
-            binding.textViewBarcodeValue.text = getString(R.string.barcode_with_value, productBarcode)
+        val barcode = productBarcode
+        if (!barcode.isNullOrBlank()) {
+            binding.textViewBarcodeValue.text = getString(R.string.barcode_with_value, barcode)
             binding.textViewBarcodeValue.visibility = View.VISIBLE
         } else {
             binding.textViewBarcodeValue.visibility = View.GONE
         }
 
-        if (!selectedImageUri.isNullOrBlank()) {
-            Glide.with(this).load(Uri.parse(selectedImageUri))
+        val imageUri = selectedImageUri
+        if (!imageUri.isNullOrBlank()) {
+            Glide.with(this).load(imageUri.toUri())
                 .placeholder(R.drawable.ic_placeholder)
                 .error(R.drawable.ic_placeholder)
                 .into(binding.imageProductPreview)
@@ -396,6 +406,43 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
     private fun setupListeners() {
         binding.btnSaveProduct.setOnClickListener { saveProduct() }
         binding.imageProductPreview.setOnClickListener { pickImageLauncher.launch(arrayOf("image/*")) }
+
+        binding.btnPlusQuantity.setOnClickListener {
+            val currentQty = binding.editTextQuantity.text.toString().toIntOrNull() ?: 1
+            if (currentQty < 999) {
+                binding.editTextQuantity.setText((currentQty + 1).toString())
+            }
+        }
+
+        binding.btnMinusQuantity.setOnClickListener {
+            val currentQty = binding.editTextQuantity.text.toString().toIntOrNull() ?: 1
+            if (currentQty > 1) {
+                binding.editTextQuantity.setText((currentQty - 1).toString())
+            }
+        }
+
+        binding.editTextQuantity.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val value = binding.editTextQuantity.text.toString().toIntOrNull()
+                if (value != null) {
+                    if (value < 1) binding.editTextQuantity.setText("1")
+                    else if (value > 999) binding.editTextQuantity.setText("999")
+                } else if (binding.editTextQuantity.text.isNullOrBlank()) {
+                    binding.editTextQuantity.setText("1")
+                }
+            }
+        }
+
+        binding.editTextWeight.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val value = binding.editTextWeight.text.toString().toIntOrNull()
+                if (value != null) {
+                    if (value < 1) binding.editTextWeight.setText("1")
+                    else if (value > 999999) binding.editTextWeight.setText("999999")
+                }
+            }
+        }
+
         binding.imageProductPreview.setOnLongClickListener {
             selectedImageUri = null
             binding.imageProductPreview.setImageResource(R.drawable.ic_placeholder)
@@ -427,66 +474,133 @@ class ManualEntryActivity : ThemedAppCompatActivity() {
         productBarcode = null
         binding.textViewBarcodeValue.text = ""
         binding.textViewBarcodeValue.visibility = View.GONE
+
+        // Clear product state
+        editingProduct = null
         
         // Reset errors
         binding.layoutProductName.error = null
+        binding.layoutBrand.error = null
         binding.layoutQuantity.error = null
         binding.layoutWeight.error = null
+        binding.expiryDateWheel.layoutExpiryText.error = null
         binding.expiryDateWheel.textExpiryDateError.visibility = View.GONE
         
-        // Update title (will likely revert to "Add Product")
+        // Update title (will revert to "Add Product")
         updateToolbarTitle()
         
         Toast.makeText(this, "All fields cleared", Toast.LENGTH_SHORT).show()
     }
 
     private fun saveProduct() {
+        // Reset errors
+        binding.layoutProductName.error = null
+        binding.layoutQuantity.error = null
+        binding.layoutWeight.error = null
+        binding.layoutBrand.error = null
+        binding.expiryDateWheel.layoutExpiryText.error = null
+        binding.expiryDateWheel.textExpiryDateError.visibility = View.GONE
+
+        // 1. Trim strings (strip leading/trailing whitespace)
         val name = binding.editTextProductName.text.toString().trim()
-        if (name.isEmpty()) {
+        val brand = binding.editTextBrand.text.toString().trim().takeIf { it.isNotBlank() }
+
+        // 2. Check Existence: Is name.isBlank()?
+        if (name.isBlank()) {
             binding.layoutProductName.error = "Product name is required"
+            binding.manualEntryScroll.smoothScrollTo(0, binding.layoutProductName.top)
             return
         }
-        binding.layoutProductName.error = null
+        if (name.length > 100) {
+            binding.layoutProductName.error = "Name must be 100 characters or less"
+            binding.manualEntryScroll.smoothScrollTo(0, binding.layoutProductName.top)
+            return
+        }
 
+        // Parse date if in text mode
         if (dateInputMode == DateInputMode.TEXT) {
             parseTextExpiryDate(binding.expiryDateWheel.editTextExpiryDate.text?.toString().orEmpty())
         }
 
+        // 3. Check Date: Optional in prompt but mandatory here.
         val finalExpiryMillis = expiryMillis
         if (finalExpiryMillis == null) {
-            binding.expiryDateWheel.textExpiryDateError.text = getString(R.string.error_expiry_date_required)
-            binding.expiryDateWheel.textExpiryDateError.visibility = View.VISIBLE
+            if (dateInputMode == DateInputMode.TEXT) {
+                binding.expiryDateWheel.layoutExpiryText.error = getString(R.string.expiry_date_invalid)
+                binding.manualEntryScroll.smoothScrollTo(0, binding.expiryDateWheel.root.top)
+            } else {
+                binding.expiryDateWheel.textExpiryDateError.text = getString(R.string.error_expiry_date_required)
+                binding.expiryDateWheel.textExpiryDateError.visibility = View.VISIBLE
+                binding.manualEntryScroll.smoothScrollTo(0, binding.expiryDateWheel.root.top)
+            }
             return
         }
-        binding.expiryDateWheel.textExpiryDateError.visibility = View.GONE
 
-        val brand = binding.editTextBrand.text.toString().trim().takeIf { it.isNotBlank() }
-
-        val qtyString = binding.editTextQuantity.text.toString().trim()
-        val qtyInt = if (qtyString.isBlank()) {
-            1
-        } else {
-            qtyString.toIntOrNull()?.takeIf { it in 1..9999 } ?: run {
-                binding.layoutQuantity.error = "Quantity must be between 1 and 9999"
-                return
+        // Reasonableness Check: Disallow dates too far in the past or impossibly far in the future
+        val currentMillis = System.currentTimeMillis()
+        val oneYearAgoMillis = currentMillis - (365L * 24 * 60 * 60 * 1000)
+        val tenYearsFutureMillis = currentMillis + (10L * 365 * 24 * 60 * 60 * 1000)
+        
+        if (finalExpiryMillis < oneYearAgoMillis) {
+            val errorMsg = "Date cannot be more than 1 year in the past"
+            if (dateInputMode == DateInputMode.TEXT) {
+                binding.expiryDateWheel.layoutExpiryText.error = errorMsg
+                binding.manualEntryScroll.smoothScrollTo(0, binding.expiryDateWheel.root.top)
+            } else {
+                binding.expiryDateWheel.textExpiryDateError.text = errorMsg
+                binding.expiryDateWheel.textExpiryDateError.visibility = View.VISIBLE
+                binding.manualEntryScroll.smoothScrollTo(0, binding.expiryDateWheel.root.top)
             }
+            return
         }
-        binding.layoutQuantity.error = null
 
-        val weightString = binding.editTextWeight.text.toString()
+        if (finalExpiryMillis > tenYearsFutureMillis) {
+            val errorMsg = "Date cannot be more than 10 years in the future"
+            if (dateInputMode == DateInputMode.TEXT) {
+                binding.expiryDateWheel.layoutExpiryText.error = errorMsg
+                binding.manualEntryScroll.smoothScrollTo(0, binding.expiryDateWheel.root.top)
+            } else {
+                binding.expiryDateWheel.textExpiryDateError.text = errorMsg
+                binding.expiryDateWheel.textExpiryDateError.visibility = View.VISIBLE
+                binding.manualEntryScroll.smoothScrollTo(0, binding.expiryDateWheel.root.top)
+            }
+            return
+        }
+
+        // 4. Check Types & Ranges:
+        // Quantity (quantity): Default automatically to 1. Range Check: 1 to 999.
+        val qtyString = binding.editTextQuantity.text.toString().trim()
+        var qtyInt = qtyString.toIntOrNull() ?: 1
+        if (qtyInt < 1) qtyInt = 1
+        if (qtyInt > 999) {
+            binding.layoutQuantity.error = "Quantity must be 999 or less"
+            binding.manualEntryScroll.smoothScrollTo(0, binding.layoutQuantity.top)
+            return
+        }
+
+        // Weight: Optional 1 to 999,999 (g/ml)
+        val weightString = binding.editTextWeight.text.toString().trim()
         val parsedWeight = weightString.toIntOrNull()
         val finalWeight: Int?
         if (weightString.isNotBlank()) {
-            if (parsedWeight == null || parsedWeight < 1 || parsedWeight > 99999) {
-                binding.layoutWeight.error = "Weight must be between 1 and 99999"
+            if (parsedWeight == null || parsedWeight < 1 || parsedWeight > 999999) {
+                binding.layoutWeight.error = "Weight must be between 1 and 999,999"
+                binding.manualEntryScroll.smoothScrollTo(0, binding.layoutWeight.top)
                 return
             }
             finalWeight = parsedWeight
         } else {
             finalWeight = null
         }
-        binding.layoutWeight.error = null
 
+        // Brand check
+        if ((brand?.length ?: 0) > 50) {
+            binding.layoutBrand.error = "Brand must be 50 characters or less"
+            binding.manualEntryScroll.smoothScrollTo(0, binding.layoutBrand.top)
+            return
+        }
+
+        // 5. Instantiate Product() & Commit to SQLite Room DB.
         val currentTime = System.currentTimeMillis()
         val isEditing = editingProduct != null && editingProduct!!.id != 0
 
